@@ -34,7 +34,7 @@ class Airplane(threading.Thread):
 		self.__dy = dy
 		self.__dz = dz
 		self.__dtheta = dtheta
-		self.__phi = dphi
+		self.__dphi = dphi
 
 		# intrinsic "self" lock
 		self.ap_lock = threading.RLock()
@@ -103,6 +103,7 @@ class Airplane(threading.Thread):
 			self.__dphi = math.pi/8
 
 		self.__dtheta = min(max(self.__dtheta,-math.pi/4),math.pi/4)
+		self.__dphi = min(max(self.__dphi), -math.pi/8), math.pi/8)
 
 	def checkIfNoLock(self):
 		if self.__sim is None:
@@ -136,7 +137,7 @@ class Airplane(threading.Thread):
 		return vel
 
 	def setPosition(self,pos):
-		if len(pos) != 3:
+		if len(pos) != 5:
 			raise IllegalArgumentException("new Pos array must be of length 3")
 
 		self.ap_lock.acquire() # start critical region
@@ -144,12 +145,13 @@ class Airplane(threading.Thread):
 		self.__y = pos[1]
 		self.__z = pos[2]
 		self.__theta = pos[3]
+		self.__phi = pos[4]
 
 		self.clampPosition()
 		self.ap_lock.release() # end critical region
 
 	def setVelocity(self,vel):
-		if len(vel) != 4:
+		if len(vel) != 5:
 			raise IllegalArgumentException("new Vel array must be of length 3")
 
 		self.ap_lock.acquire() # start critical region
@@ -157,27 +159,30 @@ class Airplane(threading.Thread):
 		self.__dy = vel[1]
 		self.__dz = vel[2]
 		self.__dtheta = vel[3]
+		self.__dphi = vel[4]
 
 		self.clampVelocity()
 		self.ap_lock.release() # end critical region
 
 	def controlPlane(self,c):
 		speed = c.getSpeed()
-		dtheta = c.getRotVel()
+		dtheta = c.getRotVelX()
 
 		self.ap_lock.acquire() # start critical region
 		# modify internal dx and dy values
 		self.__dx = speed*math.cos(self.__theta)
 		self.__dy = speed*math.sin(self.__theta)
+		self.__dz = speed*math.cos(self.__phi)
 
-		# change dtheta to supplied rotational velocity
-		self.__dtheta = c.getRotVel()
-
+		# change dtheta and dphi to supplied rotational velocities
+		self.__dtheta = c.getRotVelX()
+		self.__dphi = c.getRotVelZ()
+		
 		self.clampVelocity()
 		self.ap_lock.release() # end critical region
 
 	@staticmethod
-	def normalizeAngle(theta):
+	def normalizeAngleTheta(theta):
 
 		rtheta = math.fmod(theta - math.pi, 2*math.pi)
 		if rtheta < 0:
@@ -186,6 +191,17 @@ class Airplane(threading.Thread):
 		rtheta -= math.pi
 
 		return rtheta
+		
+	@staticmethod	
+	def normalizeAnglePhi(phi):
+		
+		rphi = math.fmod(phi - math.pi/2, math.pi)
+		if rphi < 0:
+			rphi += math.pi
+			
+		rphi -= math.pi/2
+		
+		return phi
 
 	def advance(self,sec,msec):
 		t = sec + msec*1e-3;
@@ -199,13 +215,14 @@ class Airplane(threading.Thread):
 
 		self.__x = self.__x + self.__dx*t + errd*math.cos(self.__theta) - errc*math.sin(self.__theta)
 		self.__y  = self.__y + self.__dy*t + errd*math.sin(self.__theta) + errc*math.cos(self.__theta)
-		self.__z = self.__z + self.__dz*t + errc*math.cos(self.__theta) + errd*math.sin(self.__theta)
-		self.__theta = self.normalizeAngle(self.__theta + self.__dtheta*t)
+		self.__z = self.__z + self.__dz*t + errc*math.cos(self.__phi) + errd*math.sin(self.__phi)
+		self.__theta = self.normalizeAngleTheta(self.__theta + self.__dtheta*t)
+		self.__phi = self.normalizeAnglePhi(self.__phi + self.__dphi*t)
 
 		s = math.sqrt(self.__dx*self.__dx + self.__dy*self.__dy + self.__dz*self.__dz)
 		self.__dx = s*math.cos(self.__theta)
 		self.__dy = s*math.sin(self.__theta)
-		#self.__dz = s*math.sin(self.__theta)
+		self.__dz = s*math.cos(self.__phi)
 		self.__dtheta = self.__dtheta
 
 		self.clampPosition()
@@ -232,20 +249,23 @@ class Airplane(threading.Thread):
 
 			xc = self.__x - r * math.sin(self.__theta)
 			yc = self.__y + r * math.cos(self.__theta)
-			zc = self.__z + r * math.cos(self.__theta)
+			zc = self.__z + r * math.cos(self.__phi)
 
 			self.__theta = self.__theta + self.__dtheta*t
 
 			rtheta = ((self.__theta-math.pi) % (2*math.pi))
+			rphi = ((self.__phi - math.pi/2) % (math.pi))
 			if (rtheta < 0): # Note that % in java is remainder, not modulo.
 				rtheta += 2*math.pi
+			if (rphi < 0):
+				rphi += math.pi
 
 			self.__theta = rtheta - math.pi;
 
 			# Update Values
 			self.__x = xc + r * math.sin(self.__theta)
 			self.__y = yc - r * math.cos(self.__theta)
-			self.__z = zc - r * math.cos(self.__theta)
+			self.__z = zc - r * math.cos(self.__phi)
 			self.__dx = s * math.cos(self.__theta)
 			self.__dy = s * math.sin(self.__theta)
 		

@@ -188,29 +188,33 @@ if __name__ == '__main__':
 
 		for i in range(numPlanes):
 			initialPos = ([random.random()*100,random.random()*100,
-						random.random()*2.0*math.pi - math.pi])
+						random.random()*100,
+						random.random()*2.0*math.pi - math.pi,
+						random.random()*math.pi/2 - math.pi/2])
 			speed = random.random()*5.0 + 5.0
-			initialDX = speed*math.cos(initialPos[2])
-			initialDY = speed*math.sin(initialPos[2])
+			initialDX = speed*math.cos(initialPos[3])
+			initialDY = speed*math.sin(initialPos[3])
+			initialDZ = speed*math.cos(initialPos[4])
 
-			initialOmega = random.random()*math.pi/2 - math.pi/4
+			initialOmegaX = random.random()*math.pi/2 - math.pi/4
+			initialOmegaZ = random.random()*math.pi/4 - math.pi/8
 
-			apf = Airplane(initialPos, initialDX, initialDY, initialOmega)
-			vc = None # null vehicle controller
+			apf = Airplane(initialPos, initialDX, initialDY, initalDY, initialOmegaX, initalOmegaZ)
+			pc = None # null vehicle controller
 
 
 			if i == 0:
 				if leaderType == 0:
-					vc = RandomController(sim,apf)
+					pc = RandomController(sim,apf)
 				elif leaderType == 1:
-					vc = LeadingController(sim,apf)
+					pc = LeadingController(sim,apf)
 
-				fc = vc # 1st controller is the now defined vc
+				fc = pc # 1st controller is the now defined pc
 				leader = apf 
 
 			else:
 				if leader is not None:
-					vc = FollowingController(sim,apf,leader)
+					pc = FollowingController(sim,apf,leader)
 					if leaderType == 1:
 						fc.addFollower(apf)
 
@@ -220,7 +224,7 @@ if __name__ == '__main__':
 
 			apf.addSimulator(sim)
 			sim.addAirplane(apf)
-			vc.start()
+			pc.start()
 			apf.start()
 
 		sim.start()

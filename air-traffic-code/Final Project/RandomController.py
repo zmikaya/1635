@@ -20,7 +20,8 @@ class RandomController(PlaneController):
 
 		self.__minTransSpeed = 5
 		self.__maxTransSpeed = 8
-		self.__maxRotSpeed = math.radians(10)
+		self.__maxRotXSpeed = math.radians(10)
+		self.__maxRotZSpeed = math.radians(5)
 		self.__controllerInitialized = False
 		self.__avoidWallDist = 15
 
@@ -32,8 +33,9 @@ class RandomController(PlaneController):
 			return a
 		# otherwise generate a random control
 		randSpeed = random.random()*5 + 5
-		randOmega = random.random()*math.pi/2.0 - math.pi/4.0
-		c = Control(randSpeed,randOmega)
+		randOmegaX = random.random()*math.pi/2.0 - math.pi/4.0
+		randOmegaZ = random.random()*math.pi/4.0 - math.pi/8.0
+		c = Control(randSpeed,randOmegaX, randOmegaZ)
 
 		return c
 

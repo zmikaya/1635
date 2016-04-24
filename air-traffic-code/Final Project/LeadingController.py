@@ -62,16 +62,25 @@ class LeadingController(PlaneController):
 	    
 		xDiff = chaserPos[0] - myPos[0]
 		yDiff = chaserPos[1] - myPos[1]
+		zDiff = chaserPos[2] - myPos[2]
 		targetTheta = math.atan2(yDiff, xDiff)
+		targetPhi = math.atans(zDiff, yDiff)
 
-		desiredOmega = PlaneController.normalizeAngle(targetTheta - myPos[2] + math.pi)
+		desiredOmegaX = PlaneController.normalizeAngleTheta(targetTheta - myPos[3] + math.pi)
+		desiredOmegaZ = PlaneController.normalizeAnglePhi(targetPhi - myPos[4] + math.pi/2)
 
 		gain = 5.0
 		desiredOmega *= gain
-		if desiredOmega > math.pi/4:
-			desiredOmega = math.pi/4
-		if desiredOmega < -math.pi/4:
-			desiredOmega = -math.pi/4
+		if desiredOmegaX > math.pi/4:
+			desiredOmegaX = math.pi/4
+		if desiredOmegaX < -math.pi/4:
+			desiredOmegaX = -math.pi/4
+			
+		desiredPhi *= 0.5*gain
+		if desiredOmegaZ > math.pi/8:
+			desiredOmegaZ = math.pi/8
+		if desiredOmegaZ < -math.pi/8:
+			desiredOmegaZ = -math.pi/8
 
 		desiredSpeed = 10
 
@@ -80,7 +89,7 @@ class LeadingController(PlaneController):
 		if a is not None:
 			return a
 
-		c = Control(desiredSpeed, desiredOmega)
+		c = Control(desiredSpeed, desiredOmegaX, desiredOmegaZ)
 		return c
 
 	def getClosestPlane(self):
@@ -92,7 +101,9 @@ class LeadingController(PlaneController):
 			followerPos = ap.getPosition()
 			xDist = leaderPos[0] - followerPos[0]
 			yDist = leaderPos[1] - followerPos[1]
-			totalDist = math.hypot(xDist, yDist)
+			zDist = leaderPos[2] - followerPos[2]
+			totalDist = sqrt(xDist**2 + yDist**2 + zDist**2)
+			
 
 			if totalDist < closestDist:
 				closestDist = totalDist
