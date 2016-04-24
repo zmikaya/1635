@@ -6,65 +6,65 @@
 import math, threading, sys
 
 from Simulator import *
-from GroundVehicle import *
-from VehicleController import *
+from Airplane import *
+from PlaneController import *
 from IllegalArgumentException import *
 
-class LeadingController(VehicleController):
+class LeadingController(PlaneController):
 	
-	def __init__(self,sim,gv):
+	def __init__(self,sim,ap):
 		# initializes super class
-		super(LeadingController, self).__init__(sim,gv)
+		super(LeadingController, self).__init__(sim,ap)
 		
-		self.__gv = gv
-		self.__gvList = []
+		self.__ap = ap
+		self.__apList = []
 
-	# Adds a GroundVehicle to the list of chasers considered by this
-    # groundVehicle.
-	def addFollower(self,gv):
-		self.__gvList.append(gv)
+	# Adds a Airplane to the list of chasers considered by this
+    # groundPlane.
+	def addFollower(self,ap):
+		self.__apList.append(ap)
 
-	# Return a GroundVehicle at index
+	# Return a Airplane at index
 	def getFollower(self,index):
-		if index<0 or index>(len(self.__gvList)-1):
+		if index<0 or index>(len(self.__apList)-1):
 			return None
-		return self.__gvList[index]
+		return self.__apList[index]
 
 	# Returns a control negating the output for the FollowingControler. Added
-    # special controls when the GroundVehicle is close to the walls.
+    # special controls when the Airplane is close to the walls.
 	def getControl(self,sec,msec):
-		closestGV = self.getClosestVehicle()
+		closestAP = self.getClosestPlane()
 
 		# if no closest vehicle return None
-		if closestGV is None:
+		if closestAP is None:
 			return None
 
 		desiredOmega = 0
 
-		chaserPos = closestGV.getPosition() # Shared Resource
-		myPos = self.__gv.getPosition() # Shared Resource
+		chaserPos = closestAP.getPosition() # Shared Resource
+		myPos = self.__ap.getPosition() # Shared Resource
 
 		# Attempt to get more than one lock - uncomment below to see exception thrown*/
 		
-		# leadGV = self.__gv
-		# print '---Aquiring Multiple GV-Locks---\n'
-		# closestGV.gv_lock.acquire()
-		# leadGV.gv_lock.acquire()
-		# print '---Both GV-Locks Acquired---\n'
+		# leadAP = self.__ap
+		# print '---Aquiring Multiple AP-Locks---\n'
+		# closestAP.ap_lock.acquire()
+		# leadAP.ap_lock.acquire()
+		# print '---Both AP-Locks Acquired---\n'
 		# # The following call to getPosition() will cause DeadLockTester to
-		# # throw an exception, since two different gv-locks have been acquired 
+		# # throw an exception, since two different ap-locks have been acquired 
 		# # by a single thread. The program execution will hault becasue of this
-		# closestGV.getPosition()
-		# leadGV.getPosition()
-		# leadGV.gv_lock.release()
-		# closestGV.gv_lock.release()
+		# closestAP.getPosition()
+		# leadAP.getPosition()
+		# leadAP.ap_lock.release()
+		# closestAP.ap_lock.release()
 
 	    
 		xDiff = chaserPos[0] - myPos[0]
 		yDiff = chaserPos[1] - myPos[1]
 		targetTheta = math.atan2(yDiff, xDiff)
 
-		desiredOmega = VehicleController.normalizeAngle(targetTheta - myPos[2] + math.pi)
+		desiredOmega = PlaneController.normalizeAngle(targetTheta - myPos[2] + math.pi)
 
 		gain = 5.0
 		desiredOmega *= gain
@@ -76,27 +76,27 @@ class LeadingController(VehicleController):
 		desiredSpeed = 10
 
 		# Wall cases and corner cases
-		a = VehicleController.avoidWalls(myPos)
+		a = PlaneController.avoidWalls(myPos)
 		if a is not None:
 			return a
 
 		c = Control(desiredSpeed, desiredOmega)
 		return c
 
-	def getClosestVehicle(self):
+	def getClosestPlane(self):
 
-		leaderPos = self.__gv.getPosition()
+		leaderPos = self.__ap.getPosition()
 		closestDist = sys.float_info.max
-		closestGV = None
-		for gv in self.__gvList:
-			followerPos = gv.getPosition()
+		closestAP = None
+		for ap in self.__apList:
+			followerPos = ap.getPosition()
 			xDist = leaderPos[0] - followerPos[0]
 			yDist = leaderPos[1] - followerPos[1]
 			totalDist = math.hypot(xDist, yDist)
 
 			if totalDist < closestDist:
 				closestDist = totalDist
-				closestGV = gv
+				closestAP = ap
 
-		assert (closestGV is not None)
-		return closestGV
+		assert (closestAP is not None)
+		return closestAP

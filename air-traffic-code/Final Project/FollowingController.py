@@ -6,24 +6,24 @@
 import math, threading
 
 from Simulator import *
-from GroundVehicle import *
-from VehicleController import *
+from Airplane import *
+from PlaneController import *
 from IllegalArgumentException import *
 
-class FollowingController(VehicleController):
+class FollowingController(PlaneController):
 	
-	def __init__(self,sim,followingVehicle,targetVehicle):
+	def __init__(self,sim,followingPlane,targetPlane):
 		# initializes super class
-		super(FollowingController, self).__init__(sim,followingVehicle)
+		super(FollowingController, self).__init__(sim,followingPlane)
 
-		self.__gv = followingVehicle
-		self.__leaderGV = targetVehicle
+		self.__gv = followingPlane
+		self.__leaderAP = targetPlane
 
 	def getControl(self,sec,msec):
-		leaderPos = self.__leaderGV.getPosition()
+		leaderPos = self.__leaderAP.getPosition()
 		myPos = self.__gv.getPosition()
 
-		# heading of the leading vehicle in global reference
+		# heading of the leading Plane in global reference
 
 		xDiff = leaderPos[0] - myPos[0]
 		yDiff = leaderPos[1] - myPos[1]
@@ -40,8 +40,8 @@ class FollowingController(VehicleController):
 		gain = 5
 
 		# need change in angle
-		desiredTheta = VehicleController.normalizeAngle(desiredTheta)
-		desiredOmega = VehicleController.normalizeAngle(desiredTheta - myPos[2])
+		desiredTheta = PlaneController.normalizeAngle(desiredTheta)
+		desiredOmega = PlaneController.normalizeAngle(desiredTheta - myPos[2])
 
 		desiredOmega *= gain
 
@@ -59,7 +59,7 @@ class FollowingController(VehicleController):
 		if desiredSpeed < 5:
 			desiredSpeed = 5
 
-		a = VehicleController.avoidWalls(self.__gv.getPosition())
+		a = PlaneController.avoidWalls(self.__gv.getPosition())
 		if a is not None:
 			return a
 

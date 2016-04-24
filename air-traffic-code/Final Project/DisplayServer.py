@@ -29,9 +29,9 @@ class DisplayServer(threading.Thread):
 		#[PLACEHOLDER] see if this runs any different without the 'Nones'
 		self.__numVehicles = None
 
-		self.__gvX = None
-		self.__gvY = None
-		self.__gvTheta = None
+		self.__apX = None
+		self.__apY = None
+		self.__apTheta = None
 
 		self.__maxHistoryLength = 1000
 		self.__histories = []
@@ -60,13 +60,13 @@ class DisplayServer(threading.Thread):
 
 		self.quit = False
 
-	def setVehicleData(self, numVehicles, gvX, gvY, gvTheta):
+	def setVehicleData(self, numVehicles, apX, apY, apTheta):
 			self.__numVehicles = numVehicles
-			self.__gvX = gvX
-			self.__gvY = gvY
-			self.__gvTheta = gvTheta
+			self.__apX = apX
+			self.__apY = apY
+			self.__apTheta = apTheta
 			#[PLACEHOLDER]
-			print gvTheta
+			print apTheta
 
 	def clear(self):
 		#[PLACEHOLDER]
@@ -94,7 +94,7 @@ class DisplayServer(threading.Thread):
 		#    'pop' oldest history postions, and add newest positions to front
 				#[PLACEHOLDER]
 		#print self.__histories
-		#print 'histories num GVs: %i | self.numGVs: %i' % (len(self.__histories),self.__numVehicles)
+		#print 'histories num aps: %i | self.numaps: %i' % (len(self.__histories),self.__numVehicles)
 		if (len(self.__histories) != self.__numVehicles):
 			# reset histories to have proper length of vehicles
 			self.__histories = []
@@ -102,15 +102,15 @@ class DisplayServer(threading.Thread):
 				# add new vehicle history at end of history list
 				self.__histories.append([]) 
 				# add most recent vehicle position at beginning of that 'blank' history
-				self.__histories[i].insert(0,(self.__gvX[i],self.__gvY[i])) 
-		else: # numVehicles still matches number of GV histories stored in histories
+				self.__histories[i].insert(0,(self.__apX[i],self.__apY[i])) 
+		else: # numVehicles still matches number of ap histories stored in histories
 			if len(self.__histories[0]) < self.__maxHistoryLength:
 				for i in range(len(self.__histories)):
-					self.__histories[i].insert(0,(self.__gvX[i],self.__gvY[i]))
+					self.__histories[i].insert(0,(self.__apX[i],self.__apY[i]))
 			else: # history length has reached max lenth, pop off oldest value
 				for i in range(len(self.__histories)):
 					self.__histories[i].pop()
-					self.__histories[i].insert(0,(self.__gvX[i],self.__gvY[i]))
+					self.__histories[i].insert(0,(self.__apX[i],self.__apY[i]))
 
 
 
@@ -122,7 +122,7 @@ class DisplayServer(threading.Thread):
 		self.displayWindow.delete('all')
 		
 
-		# stringy =  'currentTheta = %f' % (self.__gvTheta[0]*180/math.pi)
+		# stringy =  'currentTheta = %f' % (self.__apTheta[0]*180/math.pi)
 		# stringy = self.displayWindow.getKey()
 		# print stringy
 		# cPos = Text(Point(250,250),stringy)
@@ -159,12 +159,12 @@ class DisplayServer(threading.Thread):
 		print 'entered drawVehicles'
 		
 		for i in range(self.__numVehicles):
-			posX = self.__gvX[i]*5
-			posY = self.__gvY[i]*5
-			theta = self.__gvTheta[i]
+			posX = self.__apX[i]*5
+			posY = self.__apY[i]*5
+			theta = self.__apTheta[i]
 
 
-			headPoint = Point(posX,posY) # current location of GV
+			headPoint = Point(posX,posY) # current location of ap
 
 			# draw vehicle as arrow head
 			tailPoint = Point(posX-math.cos((theta))*10,
@@ -196,7 +196,7 @@ class DisplayServer(threading.Thread):
 				xyPointList.append(point)
 			
 			# make a polygon object from a list of all the path vertices
-			# of GV[i], then draw that polygon in the DisplayWindow
+			# of ap[i], then draw that polygon in the DisplayWindow
 			xyPath = Polygon(xyPointList) 
 			xyPath.setOutline(self.__colors[i%10])
 			xyPath.draw(self.displayWindow)
@@ -269,8 +269,8 @@ class MessageListener(threading.Thread):
 							message = cPickle.loads(data)
 							#print 'message was :'
 							#print message
-							print 'current gvX: '
-							#print self.__gvX
+							print 'current apX: '
+							#print self.__apX
 
 							if (len(message) == 1): # scenario where a command is given, NOT vehicle data
 								print 'DEBUG: Message was length 1'

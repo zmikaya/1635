@@ -1,4 +1,4 @@
-# GroundVehicle.py
+# Airplane.py
 # Assignment 3
 
 # Author: Alessandro Lira
@@ -45,11 +45,11 @@ class Airplane(threading.Thread):
 		self.__lastCheckedSec = 0
 		self.__lastCheckedMSec = 0
 
-		# synchronize incrementation on all GV objects
+		# synchronize incrementation on all ap objects
 		Airplane.ap_class_lock.acquire()
-		self.__vehicleID = GroundVehicle.totalNumVehicles
-		GroundVehicle.totalNumVehicles += 1
-		GroundVehicle.gv_class_lock.release()
+		self.__vehicleID = Airplane.totalNumVehicles
+		Airplane.totalNumVehicles += 1
+		Airplane.ap_class_lock.release()
 
 	def addSimulator(self, sim):
 		self.__sim = sim
@@ -104,9 +104,9 @@ class Airplane(threading.Thread):
 	def getPosition(self):
 		pos = []
 		if self.checkIfNoLock():
-			self.gv_lock.acquire() # start critical region
+			self.ap_lock.acquire() # start critical region
 			pos = [self.__x, self.__y, self.__theta]
-			self.gv_lock.release() # end critical region
+			self.ap_lock.release() # end critical region
 			return pos
 
 		return pos
@@ -114,9 +114,9 @@ class Airplane(threading.Thread):
 	def getVelocity(self):
 		vel = []
 		if self.checkIfNoLock():
-			self.gv_lock.acquire() # start critical region
+			self.ap_lock.acquire() # start critical region
 			vel = [self.__dx, self.__dy, self.__dtheta]
-			self.gv_lock.release() # end critical region
+			self.ap_lock.release() # end critical region
 			return vel
 
 		return vel
@@ -125,31 +125,31 @@ class Airplane(threading.Thread):
 		if len(pos) != 3:
 			raise IllegalArgumentException("new Pos array must be of length 3")
 
-		self.gv_lock.acquire() # start critical region
+		self.ap_lock.acquire() # start critical region
 		self.__x = pos[0]
 		self.__y = pos[1]
 		self.__theta = pos[2]
 
 		self.clampPosition()
-		self.gv_lock.release() # end critical region
+		self.ap_lock.release() # end critical region
 
 	def setVelocity(self,vel):
 		if len(vel) != 3:
 			raise IllegalArgumentException("new Vel array must be of length 3")
 
-		self.gv_lock.acquire() # start critical region
+		self.ap_lock.acquire() # start critical region
 		self.__dx = vel[0]
 		self.__dy = vel[1]
 		self.__dtheta = vel[2]
 
 		self.clampVelocity()
-		self.gv_lock.release() # end critical region
+		self.ap_lock.release() # end critical region
 
 	def controlVehicle(self,c):
 		speed = c.getSpeed()
 		dtheta = c.getRotVel()
 
-		self.gv_lock.acquire() # start critical region
+		self.ap_lock.acquire() # start critical region
 		# modify internal dx and dy values
 		self.__dx = speed*math.cos(self.__theta)
 		self.__dy = speed*math.sin(self.__theta)
@@ -158,7 +158,7 @@ class Airplane(threading.Thread):
 		self.__dtheta = c.getRotVel()
 
 		self.clampVelocity()
-		self.gv_lock.release() # end critical region
+		self.ap_lock.release() # end critical region
 
 	@staticmethod
 	def normalizeAngle(theta):
@@ -174,7 +174,7 @@ class Airplane(threading.Thread):
 	def advance(self,sec,msec):
 		t = sec + msec*1e-3;
 
-		self.gv_lock.acquire() # start critical region
+		self.ap_lock.acquire() # start critical region
 
 		noiseScaleFactor = 200 # adjust to determine noise magnitude
 
@@ -193,7 +193,7 @@ class Airplane(threading.Thread):
 		self.clampPosition()
 		self.clampVelocity()
 
-		self.gv_lock.release() # end critical region
+		self.ap_lock.release() # end critical region
 
 	def advanceNoiseFree(self,sec,msec):
 		t = sec + msec*1e-3;
@@ -203,7 +203,7 @@ class Airplane(threading.Thread):
 
 		# -- Curve model --
 		
-		self.gv_lock.acquire() # start critical region
+		self.ap_lock.acquire() # start critical region
 
 		# Assuming that  dx,  dy, and  dtheta was set beforehand by controlVehicle()
 		s = math.sqrt(self.__dx*self.__dx + self.__dy*self.__dy)
@@ -236,11 +236,11 @@ class Airplane(threading.Thread):
 		self.clampPosition()
 		self.clampVelocity()
 
-		self.gv_lock.release() # end critical region
+		self.ap_lock.release() # end critical region
 
 	def run(self):
 
-		print "GV: %i thread started" % self.__vehicleID
+		print "ap: %i thread started" % self.__vehicleID
 
 		currentSec = 0
 		currentMSec = 0
@@ -297,15 +297,15 @@ class Airplane(threading.Thread):
 	# reverseCompareId) is is needed when you try resource-hierarchy
 	# solution for deadlock prevention
 
-	# def compareID(self,gv):
-	# 	if self.getVehicleID < gv.getVehicleID:
+	# def compareID(self,ap):
+	# 	if self.getVehicleID < ap.getVehicleID:
 	# 		return -1
-	# 	elif self.getVehicleID < gv.getVehicleID:
+	# 	elif self.getVehicleID < ap.getVehicleID:
 	# 		return 1
 	# 	else:
 	# 		return 0
 
-	# def reverseCompareID(self,gv):
-	# 	return -(self.compareID(gv))
+	# def reverseCompareID(self,ap):
+	# 	return -(self.compareID(ap))
 
 

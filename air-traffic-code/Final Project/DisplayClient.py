@@ -73,10 +73,10 @@ class DisplayClient:
 			print 'Disconnected from Display Server(%s)' % self.__host
 			self.__connected = False
 
-	def update(self,numVehicles, gvX, gvY, gvTheta):
+	def update(self,numVehicles, apX, apY, apTheta):
 		#time.sleep(.0001)
 		try:	
-			message = (numVehicles, gvX, gvY, gvTheta) # assemble all info into a tuple "message"
+			message = (numVehicles, apX, apY, apTheta) # assemble all info into a tuple "message"
 			data = cPickle.dumps(message) # then "pickle" (serialize) that message into byte-code data
 			self.__mySocket.send(data)
 		except Exception, e:
@@ -106,31 +106,31 @@ if __name__ == '__main__':
 
 	for i in range(5):
 		# 1st update
-		gvX = [25,40]
-		gvY = [25,40]
-		gvTheta = [math.pi/2,math.pi/2]
-		dc.update(2,gvX,gvY,gvTheta)
+		apX = [25,40]
+		apY = [25,40]
+		apTheta = [math.pi/2,math.pi/2]
+		dc.update(2,apX,apY,apTheta)
 		time.sleep(.5)
 
 		# 2nd update
-		gvX = [25,40]
-		gvY = [75,60]
-		gvTheta = [0,0]
-		dc.update(2,gvX,gvY,gvTheta)
+		apX = [25,40]
+		apY = [75,60]
+		apTheta = [0,0]
+		dc.update(2,apX,apY,apTheta)
 		time.sleep(.5)
 
 		# 3rd update
-		gvX = [75,60]
-		gvY = [75,60]
-		gvTheta = [-math.pi/2,-math.pi/2]
-		dc.update(2,gvX,gvY,gvTheta)
+		apX = [75,60]
+		apY = [75,60]
+		apTheta = [-math.pi/2,-math.pi/2]
+		dc.update(2,apX,apY,apTheta)
 		time.sleep(.5)
 
 		# 4th update
-		gvX = [75,60]
-		gvY = [25,40]
-		gvTheta = [-math.pi,-math.pi]
-		dc.update(2,gvX,gvY,gvTheta)
+		apX = [75,60]
+		apY = [25,40]
+		apTheta = [-math.pi,-math.pi]
+		dc.update(2,apX,apY,apTheta)
 		time.sleep(.5)
 
 	print 'Done with demo'

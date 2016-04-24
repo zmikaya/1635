@@ -53,15 +53,15 @@ class TestSimulator(unittest.TestCase):
 	def testAddVehicle(self):
 		sim = Simulator()
 		pose = [0,0,0]
-		gv1 = GroundVehicle(pose,1,0,1)
-		gv2 = GroundVehicle(pose,0,1,1)
-		gv1.addSimulator(sim)
-		gv2.addSimulator(sim)
-		sim.addGroundVehicle(gv1)
-		sim.addGroundVehicle(gv2)
+		ap1 = Airplane(pose,1,0,1)
+		ap2 = Airplane(pose,0,1,1)
+		ap1.addSimulator(sim)
+		ap2.addSimulator(sim)
+		sim.addAirplane(ap1)
+		sim.addAirplane(ap2)
 
-		self.assertEqual(gv1,sim._gvList[0])
-		self.assertEqual(gv2,sim._gvList[1])
+		self.assertEqual(ap1,sim._apList[0])
+		self.assertEqual(ap2,sim._apList[1])
 
 
 # main method which executes unit tests when TestSimulator.py is run directly

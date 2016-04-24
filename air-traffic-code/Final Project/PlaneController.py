@@ -1,4 +1,4 @@
-# VehicleController.py
+# PlaneController.py
 # Assignment 3
 
 # Author: Alessandro Lira
@@ -6,15 +6,15 @@
 import math, threading, random
 
 from IllegalArgumentException import *
-from GroundVehicle import *
+from Airplane import *
 from Simulator import *
 from Control import *
 
-class VehicleController(threading.Thread):
+class PlaneController(threading.Thread):
 	# static class members
 	avoidWallDist = 15
 
-	def __init__(self,sim,gv):
+	def __init__(self,sim,ap):
 		threading.Thread.__init__(self)
 
 		self.__numSides = 5
@@ -50,7 +50,7 @@ class VehicleController(threading.Thread):
 		self.__turnDurationInner = 0 # turn duration in the inner point
 
 		self.__sim = sim
-		self.__gv = gv
+		self.__ap = ap
 
 		self.__lastCheckedSec = 0
 		self.__lastCheckedMSec = 0
@@ -239,17 +239,17 @@ class VehicleController(threading.Thread):
 
 	def run(self):
 
-		print "VC controlling GV: %i thread started" % self.__gv.getVehicleID()
+		print "PC controlling AP: %i thread started" % self.__ap.getPlaneID()
 
 		currentSec = 0
 		currentMSec = 0
 
 		while(currentSec < 100):
 			
-			#[NOT NECESSARY] Implemented for convenience of having the VC and 
+			#[NOT NECESSARY] Implemented for convenience of having the PC and 
 			# Sim threads ends when quit is called on the DisplayServer
 			if not self.__sim.getDisplayClient().isConnected():
-				print 'VC: display client NOT connected'
+				print 'PC: display client NOT connected'
 				break
 
 			# Start Condition Critical Region
@@ -278,7 +278,7 @@ class VehicleController(threading.Thread):
 			nextControl = self.getControl(currentSec,currentMSec)
 
 			if nextControl != None:
-				self.__gv.controlVehicle(nextControl)
+				self.__ap.controlPlane(nextControl)
 
 
 			# update the time of the last control
@@ -310,49 +310,49 @@ class VehicleController(threading.Thread):
 
 	@staticmethod
 	def avoidWalls(pos):
-		if (pos[0] > 100 - VehicleController.avoidWallDist and pos[1] > 100 - VehicleController.avoidWallDist):
+		if (pos[0] > 100 - PlaneController.avoidWallDist and pos[1] > 100 - PlaneController.avoidWallDist):
 			if pos[2] > -3*math.pi/4:
 				return Control(5,-math.pi/4)
 			else:
 				return Control(5,+math.pi/4)
 
-		if (pos[0] > 100 - VehicleController.avoidWallDist and pos[1] < 0 + VehicleController.avoidWallDist):
+		if (pos[0] > 100 - PlaneController.avoidWallDist and pos[1] < 0 + PlaneController.avoidWallDist):
 			if pos[2] >  3*math.pi/4:
 				return Control(5,-math.pi/4)
 			else:
 				return Control(5,+math.pi/4)
 
-		if (pos[0] < 0 + VehicleController.avoidWallDist and pos[1] > 100 - VehicleController.avoidWallDist):
+		if (pos[0] < 0 + PlaneController.avoidWallDist and pos[1] > 100 - PlaneController.avoidWallDist):
 			if pos[2] > -math.pi/4:
 				return Control(5,-math.pi/4)
 			else:
 				return Control(5,+math.pi/4)
 
-		if (pos[0] < 0 + VehicleController.avoidWallDist and pos[1] < 0 + VehicleController.avoidWallDist):
+		if (pos[0] < 0 + PlaneController.avoidWallDist and pos[1] < 0 + PlaneController.avoidWallDist):
 			if pos[2] >  math.pi/4:
 				return Control(5,-math.pi/4)
 			else:
 				return Control(5,+math.pi/4)
 
-		if (pos[0] > 100 - VehicleController.avoidWallDist):
+		if (pos[0] > 100 - PlaneController.avoidWallDist):
 			if pos[2] > 0:
 				return Control(5,+math.pi/4)
 			else:
 				return Control(5,-math.pi/4)
 
-		if (pos[0] < 0 + VehicleController.avoidWallDist):
+		if (pos[0] < 0 + PlaneController.avoidWallDist):
 			if pos[2] > 0:
 				return Control(5,-math.pi/4)
 			else:
 				return Control(5,+math.pi/4)
 
-		if (pos[1] < 0 + VehicleController.avoidWallDist):
+		if (pos[1] < 0 + PlaneController.avoidWallDist):
 			if pos[2] > math.pi/2:
 				return Control(5,-math.pi/4)
 			else:
 				return Control(5,+math.pi/4)
 
-		if (pos[1] > 100 - VehicleController.avoidWallDist):
+		if (pos[1] > 100 - PlaneController.avoidWallDist):
 			if pos[2] > -math.pi/2:
 				return Control(5,-math.pi/4)
 			else:

@@ -6,17 +6,17 @@
 import math, threading, random
 
 from IllegalArgumentException import *
-from VehicleController import *
-from GroundVehicle import *
+from PlaneController import *
+from Airplane import *
 from Simulator import *
 
-class RandomController(VehicleController):
+class RandomController(PlaneController):
 	
-	def __init__(self,sim,gv):
+	def __init__(self,sim,ap):
 		# initializes super class
-		super(RandomController, self).__init__(sim,gv)
+		super(RandomController, self).__init__(sim,ap)
 
-		self.__gv = gv
+		self.__ap = ap
 
 		self.__minTransSpeed = 5
 		self.__maxTransSpeed = 8
@@ -26,7 +26,7 @@ class RandomController(VehicleController):
 
 	def getControl(self,sec,msec):
 		# avoid walls if we're too close
-		a = VehicleController.avoidWalls(self.__gv.getPosition())
+		a = PlaneController.avoidWalls(self.__ap.getPosition())
 
 		if a is not None:
 			return a

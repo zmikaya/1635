@@ -7,9 +7,9 @@ import unittest, math
 
 from IllegalArgumentException import *
 from FollowingController import *
-from VehicleController import *
+from PlaneController import *
 from LeadingController import *
-from GroundVehicle import *
+from Airplane import *
 from Simulator import *
 from Control import *
 
@@ -19,8 +19,8 @@ class TestLeadingController(unittest.TestCase):
 	def testConstructor(self):
 		sim = Simulator()
 		pos = [0,0,0]
-		gv = GroundVehicle(pos,1,0,math.pi); gv.addSimulator(sim)
-		vc = VehicleController(sim,gv)
+		ap = Airplane(pos,1,0,math.pi); ap.addSimulator(sim)
+		pc = PlaneController(sim,ap)
 
 	# Tests that following vehicles are correctly added to the 
 	# Leading Controller
@@ -29,31 +29,31 @@ class TestLeadingController(unittest.TestCase):
 
 		pos = [1,2,3]
 
-		gv1 = GroundVehicle(pos,0,0,0); gv1.addSimulator(sim)
-		gv2 = GroundVehicle(pos,1,1,1); gv2.addSimulator(sim)
+		ap1 = Airplane(pos,0,0,0); ap1.addSimulator(sim)
+		ap2 = Airplane(pos,1,1,1); ap2.addSimulator(sim)
 
-		lc = LeadingController(sim, gv1)
-		lc.addFollower(gv2)
+		lc = LeadingController(sim, ap1)
+		lc.addFollower(ap2)
 
-		self.assertEqual(gv2, lc.getFollower(0))
+		self.assertEqual(ap2, lc.getFollower(0))
 
-	def testGetClosestVehicle(self):
+	def testGetClosestPlane(self):
 		sim = Simulator()
 
 		pos1 = [50,50,0]
 		pos2 = [10,10,0]
 		pos3 = [100,100,0]
 
-		gv1 = GroundVehicle(pos1,5,0,0); gv1.addSimulator(sim)
-		gv2 = GroundVehicle(pos2,0,5,0); gv2.addSimulator(sim)
-		gv3 = GroundVehicle(pos3,10,0,0); gv3.addSimulator(sim)
+		ap1 = Airplane(pos1,5,0,0); ap1.addSimulator(sim)
+		ap2 = Airplane(pos2,0,5,0); ap2.addSimulator(sim)
+		ap3 = Airplane(pos3,10,0,0); ap3.addSimulator(sim)
 
 
-		lc = LeadingController(sim, gv1)
-		lc.addFollower(gv2)
-		lc.addFollower(gv3)
+		lc = LeadingController(sim, ap1)
+		lc.addFollower(ap2)
+		lc.addFollower(ap3)
 
-		self.assertEqual(gv2, lc.getClosestVehicle())
+		self.assertEqual(ap2, lc.getClosestPlane())
 
 if __name__ == '__main__':
 	unittest.main()

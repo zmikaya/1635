@@ -12,8 +12,8 @@ class DeadlockTester:
 	# Used to test for potential deadlock scenarios 
 
 	# Checks that the current thread that is trying to access GroundVehicle
-	# 'gv' method does not hold a different lock except the built-in lock of
-	# 'gv'
+	# 'ap' method does not hold a different lock except the built-in lock of
+	# 'ap'
 
 	# Args:
 	# 	arg1 (GroundVehicle): groundVehicle that is calling this method
@@ -21,20 +21,20 @@ class DeadlockTester:
 
 	# Returns:
 	# 	bool: True if it doesn't hold any lock (different from built-in 
-	# 	lock of 'gv')
+	# 	lock of 'ap')
 
 	# Raises:
 	# 	DeadlockTesterException
 	
 
 	@staticmethod
-	def testLock(targetGV,sim):
-		gvList = sim._gvList # note that sim._gvList is psuedo-protected
-		for gv in gvList:
-			# check if current threaad holds each GV's intrinsic lock
-			if gv.gv_lock._RLock__owner == thread.get_ident():
-				print "Holds Lock to %i" % gv.getVehicleID()
-				if gv != targetGV:
+	def testLock(targetap,sim):
+		apList = sim._apList # note that sim._apList is psuedo-protected
+		for ap in apList:
+			# check if current threaad holds each ap's intrinsic lock
+			if ap.ap_lock._RLock__owner == thread.get_ident():
+				print "Holds Lock to %i" % ap.getVehicleID()
+				if ap != targetap:
 					raise DeadlockTesterException()
 					return False
 		return True
@@ -55,19 +55,19 @@ class DeadlockTester:
     # leaders lock. Else the order to get the locks will be reversed.
 	
 	# @staticmethod
-	# def lockgvLocks(gvList, ID):
-	# 	orderedList = sortVehiclesByID(gvList)
-	# 	for gv in orderedList:
-	# 		gv.gv_lock.acquire()
+	# def lockapLocks(apList, ID):
+	# 	orderedList = sortVehiclesByID(apList)
+	# 	for ap in orderedList:
+	# 		ap.ap_lock.acquire()
 
-    # Unlocks all the 'mygvLocks' lock of each GroundVehicle object in the
-    # gvList.
+    # Unlocks all the 'myapLocks' lock of each GroundVehicle object in the
+    # apList.
 	
 	# @staticmethod
-	# def unlockgvLocks(gvList, ID):
-	# 	orderedList = reverseSortVehiclesByID(gvList)
-	# 	for gv in orderedList:
-	# 		gv.gv_lock.release()
+	# def unlockapLocks(apList, ID):
+	# 	orderedList = reverseSortVehiclesByID(apList)
+	# 	for ap in orderedList:
+	# 		ap.ap_lock.release()
 
 
 	# Sorting lists in Python
@@ -78,12 +78,12 @@ class DeadlockTester:
 	# the 'sorted' function
 
 	# @staticmethod
-	# def sortVehcilesByID(gvList):
-	# 	return sorted(gvList, key = GroundVehicle.getVehicleID)
+	# def sortVehcilesByID(apList):
+	# 	return sorted(apList, key = GroundVehicle.getVehicleID)
 
 	# @staticmethod
-	# def reverseSortVehcilesByID(gvList):
-	# 	return sorted(gvList, key = GroundVehicle.getVehicleID, reverse=True)
+	# def reverseSortVehcilesByID(apList):
+	# 	return sorted(apList, key = GroundVehicle.getVehicleID, reverse=True)
 				
 	# For more info, check here: 
 	# https://wiki.python.org/moin/HowTo/Sorting#Key_Functions
