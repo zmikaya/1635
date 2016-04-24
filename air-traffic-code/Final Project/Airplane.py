@@ -11,28 +11,30 @@ from DeadlockTester import *
 
 class Airplane(threading.Thread):
 	# static class members (call using: Class.<member>)
-	totalNumVehicles = 0
+	totalNumPlanes = 0
 	# A simple re-entrant lock suffices here becasue this
 	# lock is only used for gated access to the resource
 	ap_class_lock = threading.RLock()
 
-	def __init__(self,pos,dx,dy,dz,dtheta):
+	def __init__(self,pos,dx,dy,dz,dtheta, dphi):
 		threading.Thread.__init__(self)
 
 		# check for legal arguments
-		if len(pos) != 3:
+		if len(pos) != 5:
 			raise IllegalArgumentException("Incorrect size Pos array")
 
-		# initiate Ground Vehicle
+		# initiate Airplane
 		self.__x = pos[0]
 		self.__y = pos[1]
 		self.__z = pos[2]
 		self.__theta = pos[3]
+		self.__phi = pos[4]
 
 		self.__dx = dx
 		self.__dy = dy
 		self.__dz = dz
 		self.__dtheta = dtheta
+		self.__phi = dphi
 
 		# intrinsic "self" lock
 		self.ap_lock = threading.RLock()
@@ -47,39 +49,45 @@ class Airplane(threading.Thread):
 
 		# synchronize incrementation on all ap objects
 		Airplane.ap_class_lock.acquire()
-		self.__vehicleID = Airplane.totalNumVehicles
-		Airplane.totalNumVehicles += 1
+		self.__planeID = Airplane.totalNumPlanes
+		Airplane.totalNumPlanes += 1
 		Airplane.ap_class_lock.release()
 
 	def addSimulator(self, sim):
 		self.__sim = sim
 
-	def getVehicleID(self):
-		return self.__vehicleID
+	def getPlaneID(self):
+		return self.__planeID
 
 	def clampPosition(self): # clamps position values (useful immediately after values have been changed)
 
-		# clamp X&Y values if necessary
+		# clamp X&Y&Z values if necessary
 		self.__x = min(max(self.__x,0),100)
 		self.__y = min(max(self.__y,0),100)
+		self.__z = min(max(self.__z,0),100)
 		
-		# wrap Theta angle value if necessary
+		# wrap Theta & Phi angle values if necessary
 		self.__theta = min(max(self.__theta, -math.pi), math.pi)
+		self.__phi = min(max(self.__phi), -math.pi/2), math.pi/2)
 		if (math.fabs(self.__theta-math.pi) < 1e-6):
 			self.__theta = -math.pi
+		if (math.fabs(self.__phi-math.pi/2) < 1e-6):
+			self.__phi = -math.pi/2
 
 	def clampVelocity(self): # clamps velocity values (useful immediately after values have been changed)
 		
-		speed = math.sqrt(self.__dx*self.__dx + self.__dy*self.__dy)
+		speed = math.sqrt(self.__dx*self.__dx + self.__dy*self.__dy + self.__dz*self.__dz)
 
 		# clamp dx & dy values if necessary
 		if (speed < 5):
 			if speed == 0: speed = 1 # condition to catch div/0 error
 			self.__dx = self.__dx*(5/speed)
 			self.__dy = self.__dy*(5/speed)
+			self.__dz = self.__dz*(5/speed)
 		elif (speed > 10):
 			self.__dx = self.__dx*(10/speed)
 			self.__dy = self.__dy*(10/speed)
+			self.__dz = self.__dz*(10/speed)
 	
 
 		# clamp dtheta value (rotational velocity) if necessary
@@ -87,6 +95,12 @@ class Airplane(threading.Thread):
 			self.__dtheta = -math.pi/4
 		elif (self.__dtheta > math.pi/4):
 			self.__dtheta = math.pi/4
+		
+		# clamp dphi value (rotational velocity) if necessary
+		if (self.__dphi < -math.pi/8):
+			self.__dphi = math.pi/8
+		elif (self.__dphi > math.pi/8):
+			self.__dphi = math.pi/8
 
 		self.__dtheta = min(max(self.__dtheta,-math.pi/4),math.pi/4)
 
@@ -115,7 +129,7 @@ class Airplane(threading.Thread):
 		vel = []
 		if self.checkIfNoLock():
 			self.ap_lock.acquire() # start critical region
-			vel = [self.__dx, self.__dy, self.__dtheta]
+			vel = [self.__dx, self.__dy, self.__dz, self.__dtheta]
 			self.ap_lock.release() # end critical region
 			return vel
 
@@ -128,24 +142,26 @@ class Airplane(threading.Thread):
 		self.ap_lock.acquire() # start critical region
 		self.__x = pos[0]
 		self.__y = pos[1]
-		self.__theta = pos[2]
+		self.__z = pos[2]
+		self.__theta = pos[3]
 
 		self.clampPosition()
 		self.ap_lock.release() # end critical region
 
 	def setVelocity(self,vel):
-		if len(vel) != 3:
+		if len(vel) != 4:
 			raise IllegalArgumentException("new Vel array must be of length 3")
 
 		self.ap_lock.acquire() # start critical region
 		self.__dx = vel[0]
 		self.__dy = vel[1]
-		self.__dtheta = vel[2]
+		self.__dz = vel[2]
+		self.__dtheta = vel[3]
 
 		self.clampVelocity()
 		self.ap_lock.release() # end critical region
 
-	def controlVehicle(self,c):
+	def controlPlane(self,c):
 		speed = c.getSpeed()
 		dtheta = c.getRotVel()
 
@@ -183,11 +199,13 @@ class Airplane(threading.Thread):
 
 		self.__x = self.__x + self.__dx*t + errd*math.cos(self.__theta) - errc*math.sin(self.__theta)
 		self.__y  = self.__y + self.__dy*t + errd*math.sin(self.__theta) + errc*math.cos(self.__theta)
+		self.__z = self.__z + self.__dz*t + errc*math.cos(self.__theta) + errd*math.sin(self.__theta)
 		self.__theta = self.normalizeAngle(self.__theta + self.__dtheta*t)
 
-		s = math.sqrt(self.__dx*self.__dx + self.__dy*self.__dy)
+		s = math.sqrt(self.__dx*self.__dx + self.__dy*self.__dy + self.__dz*self.__dz)
 		self.__dx = s*math.cos(self.__theta)
 		self.__dy = s*math.sin(self.__theta)
+		#self.__dz = s*math.sin(self.__theta)
 		self.__dtheta = self.__dtheta
 
 		self.clampPosition()
@@ -205,8 +223,8 @@ class Airplane(threading.Thread):
 		
 		self.ap_lock.acquire() # start critical region
 
-		# Assuming that  dx,  dy, and  dtheta was set beforehand by controlVehicle()
-		s = math.sqrt(self.__dx*self.__dx + self.__dy*self.__dy)
+		# Assuming that  dx,  dy, and  dtheta was set beforehand by controlPlane()
+		s = math.sqrt(self.__dx*self.__dx + self.__dy*self.__dy + self.__dz*self.__dz)
 
 		if (abs(self.__dtheta) > 1e-3): # The following model is not well defined when dtheta = 0
 			# Circle center and radius
@@ -214,6 +232,7 @@ class Airplane(threading.Thread):
 
 			xc = self.__x - r * math.sin(self.__theta)
 			yc = self.__y + r * math.cos(self.__theta)
+			zc = self.__z + r * math.cos(self.__theta)
 
 			self.__theta = self.__theta + self.__dtheta*t
 
@@ -226,12 +245,14 @@ class Airplane(threading.Thread):
 			# Update Values
 			self.__x = xc + r * math.sin(self.__theta)
 			self.__y = yc - r * math.cos(self.__theta)
+			self.__z = zc - r * math.cos(self.__theta)
 			self.__dx = s * math.cos(self.__theta)
 			self.__dy = s * math.sin(self.__theta)
 		
 		else:	# Straight motion. No change in theta.
 			self.__x = self.__x + self.__dx*t
 			self.__y = self.__y + self.__dy*t
+			self.__z = self.__z + self.__dz*t
 
 		self.clampPosition()
 		self.clampVelocity()
@@ -240,7 +261,7 @@ class Airplane(threading.Thread):
 
 	def run(self):
 
-		print "ap: %i thread started" % self.__vehicleID
+		print "ap: %i thread started" % self.__planeID
 
 		currentSec = 0
 		currentMSec = 0
@@ -285,22 +306,22 @@ class Airplane(threading.Thread):
 			self.__sim.simulator_lock.acquire()
 
 			# decrement number of controllers left to update
-			if self.__sim.numVehicleToUpdate > 0:
-				self.__sim.numVehicleToUpdate -= 1
+			if self.__sim.numPlaneToUpdate > 0:
+				self.__sim.numPlaneToUpdate -= 1
 			self.__sim.simulator_lock.notify_all()
 
 			# end critical region
 			self.__sim.simulator_lock.release() 
 
 
-	# The following three methods (getVehicleLock, compareId,
+	# The following three methods (getPlaneLock, compareId,
 	# reverseCompareId) is is needed when you try resource-hierarchy
 	# solution for deadlock prevention
 
 	# def compareID(self,ap):
-	# 	if self.getVehicleID < ap.getVehicleID:
+	# 	if self.getPlaneID < ap.getPlaneID:
 	# 		return -1
-	# 	elif self.getVehicleID < ap.getVehicleID:
+	# 	elif self.getPlaneID < ap.getPlaneID:
 	# 		return 1
 	# 	else:
 	# 		return 0
