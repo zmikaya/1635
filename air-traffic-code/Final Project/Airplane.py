@@ -120,7 +120,7 @@ class Airplane(threading.Thread):
 		pos = []
 		if self.checkIfNoLock():
 			self.ap_lock.acquire() # start critical region
-			pos = [self.__x, self.__y, self.__theta]
+			pos = [self.__x, self.__y,self.__z, self.__theta, self.__phi]
 			self.ap_lock.release() # end critical region
 			return pos
 
@@ -130,7 +130,7 @@ class Airplane(threading.Thread):
 		vel = []
 		if self.checkIfNoLock():
 			self.ap_lock.acquire() # start critical region
-			vel = [self.__dx, self.__dy, self.__dz, self.__dtheta]
+			vel = [self.__dx, self.__dy, self.__dz, self.__dtheta, self.__dphi]
 			self.ap_lock.release() # end critical region
 			return vel
 
