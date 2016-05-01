@@ -21,8 +21,10 @@ class PlaneController(threading.Thread):
 
 		self.__minTransSpeed = 5.0
 		self.__maxTransSpeed = 10.0
-		self.__minRotSpeed = -math.pi/4
-		self.__maxRotSpeed = math.pi/4
+		self.__minRotXSpeed = -math.pi/4
+		self.__maxRotXSpeed = math.pi/4
+		self.__maxRotZSpeed = math.pi/8
+		self.__maxRotZSpeed = math.pi/8
 		self.__circumCircleRadius = 25.0
 
 		self.__isTurning = False
@@ -67,7 +69,7 @@ class PlaneController(threading.Thread):
 		# these inside getControl to decide when to switch from turning to
 		# traveling straight and back again. 
 
-		minTurningRadius = self.__minTransSpeed / self.__maxRotSpeed
+		minTurningRadius = self.__minTransSpeed / self.__maxRotXSpeed
 
 		if self.__numSides < 5: # for stars with less than 5 points the path needs to do something different
 
@@ -202,13 +204,13 @@ class PlaneController(threading.Thread):
 			# if turn is NOT complete
 			if (controlTime-self.__timeOfManoeuverStart < currentTurnDuration):
 				if (self.__isSpecialMode):
-					nextControl = Control(self.__minTransSpeed,self.__maxRotSpeed)
+					nextControl = Control(self.__minTransSpeed,self.__maxRotXSpeed, self.__maxRotZSpeed)
 				else:
 					if (self.__isAtOuter):
-						nextControl = Control(self.__minTransSpeed,self.__maxRotSpeed)
+						nextControl = Control(self.__minTransSpeed,self.__maxRotXSpeed, self.__maxRotZSpeed)
 					else: 
 						#we need to turn in the other direction if performing an inner turn
-						nextControl = Control(self.__minTransSpeed,self.__minRotSpeed)
+						nextControl = Control(self.__minTransSpeed,self.__minRotXSpeed, self.__minRotZSpeed)
 			
 			# we are done turning - go over to travelling in straight line
 			else: 
@@ -227,12 +229,12 @@ class PlaneController(threading.Thread):
 				self.__timeOfManoeuverStart = controlTime
 				
 				if (self.__isSpecialMode):
-					nextControl = Control(self.__minTransSpeed,self.__maxRotSpeed)
+					nextControl = Control(self.__minTransSpeed,self.__maxRotXSpeed, self.__maxRotZSpeed)
 				else:
 					if(self.__isAtOuter):
-						nextControl = Control(self.__minTransSpeed,self.__maxRotSpeed)
+						nextControl = Control(self.__minTransSpeed,self.__maxRotXSpeed, self.maxRotZSpeed)
 					else:
-						nextControl = Control(self.__minTransSpeed,self.__minRotSpeed)
+						nextControl = Control(self.__minTransSpeed,self.__minRotXSpeed, self.minRotZSpeed)
 				
 		return nextControl
 		# done deciding controls! :D for now...
@@ -298,7 +300,7 @@ class PlaneController(threading.Thread):
 			self.__sim.simulator_lock.release() 
 
 	@staticmethod
-	def normalizeAngle(theta):
+	def normalizeAngleTheta(theta):
 
 		rtheta = math.fmod(theta - math.pi, 2*math.pi)
 		if rtheta < 0:
@@ -307,56 +309,67 @@ class PlaneController(threading.Thread):
 		rtheta -= math.pi
 
 		return rtheta
+		
+	@staticmethod	
+	def normalizeAnglePhi(phi):
+		
+		rphi = math.fmod(phi - math.pi/2, math.pi)
+		if rphi < 0:
+			rphi += math.pi
+			
+		rphi -= math.pi/2
+		
+		return phi
 
 	@staticmethod
 	def avoidWalls(pos):
 		if (pos[0] > 100 - PlaneController.avoidWallDist and pos[1] > 100 - PlaneController.avoidWallDist):
-			if pos[2] > -3*math.pi/4:
-				return Control(5,-math.pi/4)
+			if pos[3] > -3*math.pi/4:
+				return Control(5,-math.pi/4, -math.pi/8)
 			else:
-				return Control(5,+math.pi/4)
+				return Control(5,+math.pi/4, +math.pi/8)
 
 		if (pos[0] > 100 - PlaneController.avoidWallDist and pos[1] < 0 + PlaneController.avoidWallDist):
-			if pos[2] >  3*math.pi/4:
-				return Control(5,-math.pi/4)
+			if pos[3] >  3*math.pi/4:
+				return Control(5,-math.pi/4, -math.pi/8)
 			else:
-				return Control(5,+math.pi/4)
+				return Control(5,+math.pi/4, +math.pi/8)
 
 		if (pos[0] < 0 + PlaneController.avoidWallDist and pos[1] > 100 - PlaneController.avoidWallDist):
-			if pos[2] > -math.pi/4:
-				return Control(5,-math.pi/4)
+			if pos[3] > -math.pi/4:
+				return Control(5,-math.pi/4, -math.pi/8)
 			else:
-				return Control(5,+math.pi/4)
+				return Control(5,+math.pi/4, +math.pi/8)
 
 		if (pos[0] < 0 + PlaneController.avoidWallDist and pos[1] < 0 + PlaneController.avoidWallDist):
-			if pos[2] >  math.pi/4:
-				return Control(5,-math.pi/4)
+			if pos[3] >  math.pi/4:
+				return Control(5,-math.pi/4, -math.pi/8)
 			else:
-				return Control(5,+math.pi/4)
+				return Control(5,+math.pi/4, +math.pi/8)
 
 		if (pos[0] > 100 - PlaneController.avoidWallDist):
-			if pos[2] > 0:
-				return Control(5,+math.pi/4)
+			if pos[3] > 0:
+				return Control(5,+math.pi/4, +math.pi/8)
 			else:
-				return Control(5,-math.pi/4)
+				return Control(5,-math.pi/4, -math.pi/8)
 
 		if (pos[0] < 0 + PlaneController.avoidWallDist):
-			if pos[2] > 0:
-				return Control(5,-math.pi/4)
+			if pos[3] > 0:
+				return Control(5,-math.pi/4, -math.pi/8)
 			else:
-				return Control(5,+math.pi/4)
+				return Control(5,+math.pi/4, +math.pi/8)
 
 		if (pos[1] < 0 + PlaneController.avoidWallDist):
 			if pos[2] > math.pi/2:
-				return Control(5,-math.pi/4)
+				return Control(5,-math.pi/4, -math.pi/8)
 			else:
-				return Control(5,+math.pi/4)
+				return Control(5,+math.pi/4, +math.pi/8)
 
 		if (pos[1] > 100 - PlaneController.avoidWallDist):
 			if pos[2] > -math.pi/2:
-				return Control(5,-math.pi/4)
+				return Control(5,-math.pi/4, -math.pi/8)
 			else:
-				return Control(5,+math.pi/4)
+				return Control(5,+math.pi/4, +math.pi/8)
 
 		return None
 

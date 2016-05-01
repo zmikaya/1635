@@ -9,19 +9,25 @@ from IllegalArgumentException import *
 
 class Control:
 	
-	def __init__(self,s,omega):
-		# Check to make sure speed and omega are in range
+	def __init__(self,s,omegaX,omegaZ):
+		# Check to make sure speed and omegaZ are in range
 		if (s<5 or s>10):
 			raise IllegalArgumentException("Speed out of range")
-		if (omega<-math.pi or omega>=math.pi):
-			raise IllegalArgumentException("Omega out of range")
+		if (omegaZ<-math.pi or omegaZ>=math.pi):
+			raise IllegalArgumentException("OmegaZ out of range")
+		if (omegaX < -math.pi/2 or omegaX >= math.pi/2)
+			raise IllegalArgumentException("OmegaX out of range")
 
 		self.__s = s
-		self.__omega = omega
+		self.__omegaX = omegaX
+		self.__omegaZ = omegaZ
 
 	def getSpeed(self):
 		return self.__s
 
-	def getRotVel(self):
-		return self.__omega
+	def getRotVelX(self):
+		return self.__omegaX
+		
+	def getRotVelZ(self):
+		return self.__omegaZ
 
