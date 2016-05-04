@@ -1,50 +1,140 @@
+/*global THREE */
+
 import { Template } from 'meteor/templating';
 import { ReactiveVar } from 'meteor/reactive-var';
+import Detector from './imports/js/Detector';
+import Stats from './imports/js/stats.min';
 
 import './main.html';
 
-// Template.hello.onCreated(function helloOnCreated() {
-//   // counter starts at 0
-//   this.counter = new ReactiveVar(0);
-// });
+Template.mainGraphics.onRendered(function() {
+  if ( ! Detector.webgl ) {
 
-// Template.hello.helpers({
-//   counter() {
-//     return Template.instance().counter.get();
-//   },
-// });
+		Detector.addGetWebGLMessage();
+		document.getElementById( 'container' ).innerHTML = "";
 
-// Template.hello.events({
-//   'click button'(event, instance) {
-//     // increment the counter when button is clicked
-//     instance.counter.set(instance.counter.get() + 1);
-//   },
-// });
+	}
 
-Template.hello.onCreated(function() {
-    var scene = new THREE.Scene();
-  	var camera = new THREE.PerspectiveCamera( 75, window.innerWidth/window.innerHeight, 0.1, 1000 );
-  
-  	var renderer = new THREE.WebGLRenderer();
-  	renderer.setSize( window.innerWidth, window.innerHeight );
-  	document.body.appendChild( renderer.domElement );
-  
-  	var geometry = new THREE.BoxGeometry( 1, 1, 1 );
-  	var material = new THREE.MeshBasicMaterial( { color: 0x00ff00 } );
-  	var cube = new THREE.Mesh( geometry, material );
-  	scene.add( cube );
-  
-  	camera.position.z = 5;
-  
-  	var render = function () {
-  		requestAnimationFrame( render );
-  
-  		cube.rotation.x += 0.1;
-  		cube.rotation.y += 0.1;
-  
-  		renderer.render(scene, camera);
-  	};
-  
-  	render();
-  }
-);
+	var container, stats;
+
+	var camera, controls, scene, renderer;
+
+	var mesh, texture, geometry, material;
+
+	var worldWidth = 128, worldDepth = 128,
+	worldHalfWidth = worldWidth / 2, worldHalfDepth = worldDepth / 2;
+
+	var clock = new THREE.Clock();
+	
+	var aircraft = [];
+
+	init();
+	animate();
+
+	function init() {
+
+		container = document.getElementById( 'container' );
+
+		camera = new THREE.PerspectiveCamera( 60, window.innerWidth / window.innerHeight, 1, 20000 );
+		camera.position.y = 200;
+
+		controls = new THREE.FirstPersonControls( camera );
+
+		controls.movementSpeed = 500;
+		controls.lookSpeed = 0.1;
+
+		scene = new THREE.Scene();
+		scene.fog = new THREE.FogExp2( 0xaaccff, 0.0007 );
+
+		geometry = new THREE.PlaneGeometry( 20000, 20000, worldWidth - 1, worldDepth - 1 );
+		geometry.rotateX( - Math.PI / 2 );
+
+		for ( var i = 0, l = geometry.vertices.length; i < l; i ++ ) {
+
+			geometry.vertices[ i ].y = 35 * Math.sin( i / 2 );
+
+		}
+
+		texture = new THREE.TextureLoader().load( "./threejs/textures/water.jpg" );
+		texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
+		texture.repeat.set( 5, 5 );
+
+		material = new THREE.MeshBasicMaterial( { color: 0x0044ff, map: texture } );
+
+		mesh = new THREE.Mesh( geometry, material );
+		scene.add( mesh );
+		
+		// Load aircraft
+		var loader = new THREE.ObjectLoader();
+		loader.load('./threejs/objects/us-c-130-hercules-airplane-threejs/us-c-130-hercules-airplane.json', function(obj) {
+		  scene.add(obj);
+		  aircraft.push(obj);
+		});
+
+		renderer = new THREE.WebGLRenderer();
+		renderer.setClearColor( 0xaaccff );
+		renderer.setPixelRatio( window.devicePixelRatio );
+		renderer.setSize( window.innerWidth, window.innerHeight );
+
+		container.innerHTML = "";
+
+		container.appendChild( renderer.domElement );
+
+		stats = new Stats();
+		container.appendChild( stats.dom );
+
+		//
+
+		window.addEventListener( 'resize', onWindowResize, false );
+
+	}
+
+	function onWindowResize() {
+
+		camera.aspect = window.innerWidth / window.innerHeight;
+		camera.updateProjectionMatrix();
+
+		renderer.setSize( window.innerWidth, window.innerHeight );
+
+		controls.handleResize();
+
+	}
+
+	//
+
+	function animate() {
+
+		requestAnimationFrame( animate );
+		
+		for (var i=0; i<aircraft.length; i++) {
+		  aircraft[i].position.x = camera.position.x;
+		  aircraft[i].position.y = camera.position.y - 10;
+		  aircraft[i].position.z = camera.position.z + 40;
+		}
+		// console.log('x: ', camera.position.x);
+		// console.log('y: ', camera.position.y);
+		// console.log('z: ', camera.position.z);
+
+		render();
+		stats.update();
+
+	}
+
+	function render() {
+
+		var delta = clock.getDelta(),
+			time = clock.getElapsedTime() * 10;
+
+		for ( var i = 0, l = geometry.vertices.length; i < l; i ++ ) {
+
+			geometry.vertices[ i ].y = 35 * Math.sin( i / 5 + ( time + i ) / 7 );
+
+		}
+
+		mesh.geometry.verticesNeedUpdate = true;
+
+		controls.update( delta );
+		renderer.render( scene, camera );
+
+	}
+});
