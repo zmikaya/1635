@@ -35,13 +35,14 @@ Template.mainGraphics.onRendered(function() {
 
 		container = document.getElementById( 'container' );
 
-		camera = new THREE.PerspectiveCamera( 60, window.innerWidth / window.innerHeight, 1, 20000 );
-		camera.position.y = 200;
+		// camera = new THREE.PerspectiveCamera( 60, window.innerWidth / window.innerHeight, 1, 20000 );
+		// camera.position.y = 200;
+		camera = new THREE.TargetCamera(60, window.innerWidth / window.innerHeight, 1, 20000);
 
-		controls = new THREE.FirstPersonControls( camera );
+		// controls = new THREE.FirstPersonControls( camera );
 
-		controls.movementSpeed = 500;
-		controls.lookSpeed = 0.1;
+		// controls.movementSpeed = 500;
+		// controls.lookSpeed = 0.1;
 
 		scene = new THREE.Scene();
 		scene.fog = new THREE.FogExp2( 0xaaccff, 0.0007 );
@@ -69,7 +70,22 @@ Template.mainGraphics.onRendered(function() {
 		loader.load('./threejs/objects/us-c-130-hercules-airplane-threejs/us-c-130-hercules-airplane.json', function(obj) {
 		  scene.add(obj);
 		  aircraft.push(obj);
+		  setCameraTarget(obj, 'aircraft');
 		});
+		
+		function setCameraTarget(obj, name) {
+		  // Set the camera target using the THREE.TargetCamera lib
+		  camera.addTarget({
+        name: name,
+        targetObject: obj,
+        cameraPosition: new THREE.Vector3(0, 10, 50),
+        fixed: false,
+        stiffness: 0.1,
+        cameraRotation: new THREE.Euler(0, Math.PI, 0),
+        matchRotation: true
+      });
+      camera.setTarget('aircraft');
+		}
 
 		renderer = new THREE.WebGLRenderer();
 		renderer.setClearColor( 0xaaccff );
@@ -96,8 +112,6 @@ Template.mainGraphics.onRendered(function() {
 
 		renderer.setSize( window.innerWidth, window.innerHeight );
 
-		controls.handleResize();
-
 	}
 
 	//
@@ -107,13 +121,10 @@ Template.mainGraphics.onRendered(function() {
 		requestAnimationFrame( animate );
 		
 		for (var i=0; i<aircraft.length; i++) {
-		  aircraft[i].position.x = camera.position.x;
-		  aircraft[i].position.y = camera.position.y - 10;
-		  aircraft[i].position.z = camera.position.z + 40;
+		  aircraft[i].position.x = 300;
+		  aircraft[i].position.y = 300;
+		  aircraft[i].position.z = 300;
 		}
-		// console.log('x: ', camera.position.x);
-		// console.log('y: ', camera.position.y);
-		// console.log('z: ', camera.position.z);
 
 		render();
 		stats.update();
@@ -132,8 +143,8 @@ Template.mainGraphics.onRendered(function() {
 		}
 
 		mesh.geometry.verticesNeedUpdate = true;
-
-		controls.update( delta );
+  
+    camera.update();
 		renderer.render( scene, camera );
 
 	}
