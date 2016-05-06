@@ -1,13 +1,33 @@
-/*global THREE */
+/* global THREE */
+/* global $ */
 
 import { Template } from 'meteor/templating';
 import { ReactiveVar } from 'meteor/reactive-var';
-import Detector from './imports/js/Detector';
-import Stats from './imports/js/stats.min';
+import Detector from '../imports/js/Detector';
+import Stats from '../imports/js/stats.min';
+
+import controlVals from './imports/utils/controlVals';
+import modules from './imports/modules/mainModules';
 
 import './main.html';
 
+/* Handle keyboard, mouse, or other peripheral user interactions */
 Template.mainGraphics.onRendered(function() {
+  let template = this;
+  let controlValKeys = Object.keys(controlVals);
+  $(window).on('keydown', function(e){
+    if (controlValKeys.indexOf(String(e.which)) !== -1) {
+      let methodName = controlVals[e.which];
+      modules.aircraftControls[methodName](template);
+    }
+  });
+});
+
+Template.mainGraphics.onRendered(function() {
+  
+  modules.aircraftControls.createThrottleSlider(this, document);
+
+
   if ( ! Detector.webgl ) {
 
 		Detector.addGetWebGLMessage();
