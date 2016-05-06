@@ -24,8 +24,8 @@ Template.mainGraphics.onRendered(function() {
 });
 
 Template.mainGraphics.onRendered(function() {
-  
-  modules.aircraftControls.createThrottleSlider(this, document);
+  let template = this;
+  modules.aircraftControls.createThrottleSlider(template, document);
 
 
   if ( ! Detector.webgl ) {
@@ -89,6 +89,7 @@ Template.mainGraphics.onRendered(function() {
 		var loader = new THREE.ObjectLoader();
 		loader.load('./threejs/objects/us-c-130-hercules-airplane-threejs/us-c-130-hercules-airplane.json', function(obj) {
 		  scene.add(obj);
+		  obj.position.set(300, 300, 300);
 		  aircraft.push(obj);
 		  setCameraTarget(obj, 'aircraft');
 		});
@@ -139,23 +140,18 @@ Template.mainGraphics.onRendered(function() {
 	function animate() {
 
 		requestAnimationFrame( animate );
-		
-		for (var i=0; i<aircraft.length; i++) {
-		  aircraft[i].position.x = 300;
-		  aircraft[i].position.y = 300;
-		  aircraft[i].position.z = 300;
-		}
-
 		render();
 		stats.update();
 
 	}
 
 	function render() {
+    
+	  var deltaT = clock.getDelta(),
+	  time = clock.getElapsedTime() * 10;
 
-		var delta = clock.getDelta(),
-			time = clock.getElapsedTime() * 10;
-
+    modules.aircraftControls.dynamicsMain(template, aircraft, deltaT);
+    
 		for ( var i = 0, l = geometry.vertices.length; i < l; i ++ ) {
 
 			geometry.vertices[ i ].y = 35 * Math.sin( i / 5 + ( time + i ) / 7 );
