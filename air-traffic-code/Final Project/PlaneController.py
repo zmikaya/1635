@@ -1,7 +1,7 @@
 # PlaneController.py
 # Assignment 3
 
-# Author: Alessandro Lira
+# Author: Frederick Daso
 
 import math, threading, random
 
@@ -23,7 +23,7 @@ class PlaneController(threading.Thread):
 		self.__maxTransSpeed = 10.0
 		self.__minRotXSpeed = -math.pi/4
 		self.__maxRotXSpeed = math.pi/4
-		self.__maxRotZSpeed = math.pi/8
+		self.__minRotZSpeed = -math.pi/8
 		self.__maxRotZSpeed = math.pi/8
 		self.__circumCircleRadius = 25.0
 

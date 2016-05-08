@@ -64,7 +64,7 @@ class LeadingController(PlaneController):
 		yDiff = chaserPos[1] - myPos[1]
 		zDiff = chaserPos[2] - myPos[2]
 		targetTheta = math.atan2(yDiff, xDiff)
-		targetPhi = math.atans(zDiff, yDiff)
+		targetPhi = math.atan2(zDiff, yDiff)
 
 		desiredOmegaX = PlaneController.normalizeAngleTheta(targetTheta - myPos[3] + math.pi)
 		desiredOmegaZ = PlaneController.normalizeAnglePhi(targetPhi - myPos[4] + math.pi/2)

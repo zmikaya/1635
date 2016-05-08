@@ -15,7 +15,7 @@ class Control:
 			raise IllegalArgumentException("Speed out of range")
 		if (omegaZ<-math.pi or omegaZ>=math.pi):
 			raise IllegalArgumentException("OmegaZ out of range")
-		if (omegaX < -math.pi/2 or omegaX >= math.pi/2)
+		if (omegaX < -math.pi/2 or omegaX >= math.pi/2):
 			raise IllegalArgumentException("OmegaX out of range")
 
 		self.__s = s

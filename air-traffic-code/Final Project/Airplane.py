@@ -68,7 +68,7 @@ class Airplane(threading.Thread):
 		
 		# wrap Theta & Phi angle values if necessary
 		self.__theta = min(max(self.__theta, -math.pi), math.pi)
-		self.__phi = min(max(self.__phi), -math.pi/2), math.pi/2)
+		self.__phi = min(max(self.__phi, -math.pi/2), math.pi/2)
 		if (math.fabs(self.__theta-math.pi) < 1e-6):
 			self.__theta = -math.pi
 		if (math.fabs(self.__phi-math.pi/2) < 1e-6):
@@ -103,7 +103,7 @@ class Airplane(threading.Thread):
 			self.__dphi = math.pi/8
 
 		self.__dtheta = min(max(self.__dtheta,-math.pi/4),math.pi/4)
-		self.__dphi = min(max(self.__dphi), -math.pi/8), math.pi/8)
+		self.__dphi = min(max(self.__dphi, -math.pi/8), math.pi/8)
 
 	def checkIfNoLock(self):
 		if self.__sim is None:
@@ -224,6 +224,7 @@ class Airplane(threading.Thread):
 		self.__dy = s*math.sin(self.__theta)
 		self.__dz = s*math.cos(self.__phi)
 		self.__dtheta = self.__dtheta
+		self.__dphi = self.__dphi
 
 		self.clampPosition()
 		self.clampVelocity()
@@ -261,6 +262,7 @@ class Airplane(threading.Thread):
 				rphi += math.pi
 
 			self.__theta = rtheta - math.pi;
+			self.__phi = rphi - math.pi;
 
 			# Update Values
 			self.__x = xc + r * math.sin(self.__theta)
