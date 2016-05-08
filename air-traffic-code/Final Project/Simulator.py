@@ -168,14 +168,14 @@ if __name__ == '__main__':
 
 
 		# check for proper syntax
-		if len(sys.arap) != 3:
+		if len(sys.argv) != 3:
 			raise IllegalArgumentException("Usage: Simulator <numPlanes> <hostname>\n"+
 				"where <numPlanes> is number of vehicles to run in Simulation\n"+
 				"where <hostname> is where the DisplayServer is running")
 			sys.exit()
 
-		numPlanes = int(sys.arap[1])
-		host = sys.arap[2]
+		numPlanes = int(sys.argv[1])
+		host = sys.argv[2]
 
 		dc = DisplayClient(host)
 		sim = Simulator(dc)
