@@ -10,6 +10,7 @@ from FollowingController import *
 from PlaneController import *
 from LeadingController import *
 from RandomController import *
+from UserController import *
 from Airplane import *
 from DisplayClient import *
 from Control import *
@@ -214,9 +215,9 @@ def mainRun(numPlanes):
 					random.random()*2.0*math.pi - math.pi,
 					random.random()*math.pi/2 - math.pi/2])
 		speed = random.random()*5.0 + 5.0
-		initialDX = speed*math.cos(initialPos[3])
-		initialDY = speed*math.sin(initialPos[3])
-		initialDZ = speed*math.cos(initialPos[4])
+		initialDX = speed*math.cos(initialPos[0])
+		initialDY = speed*math.sin(initialPos[1])
+		initialDZ = speed*math.cos(initialPos[2])
 
 		initialOmegaX = random.random()*math.pi/2 - math.pi/4
 		initialOmegaZ = random.random()*math.pi/4 - math.pi/8
@@ -294,7 +295,7 @@ if __name__ == '__main__':
 
 			if i == 0:
 				if leaderType == 0:
-					pc = RandomController(sim,apf)
+					pc = UserController(sim, apf)
 				elif leaderType == 1:
 					pc = LeadingController(sim,apf)
 
