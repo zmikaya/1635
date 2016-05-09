@@ -250,9 +250,9 @@ class PlaneController(threading.Thread):
 			
 			#[NOT NECESSARY] Implemented for convenience of having the PC and 
 			# Sim threads ends when quit is called on the DisplayServer
-			if not self.__sim.getDisplayClient().isConnected():
-				print 'PC: display client NOT connected'
-				break
+		# 	if not self.__sim.getDisplayClient().isConnected():
+		# 		print 'PC: display client NOT connected'
+		# 		break
 
 			# Start Condition Critical Region
 			self.__sim.simulator_lock.acquire()

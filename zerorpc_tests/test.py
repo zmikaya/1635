@@ -1,10 +1,7 @@
-#ZeroRPC Client
 import zerorpc
-
-from Simulator import *
 
 c = zerorpc.Client()
 c.connect("tcp://127.0.0.1:4242")
-main(1)
-
-    
+for i in range(10):
+  print i
+  c.hello(str(i))

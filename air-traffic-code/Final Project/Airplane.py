@@ -289,8 +289,8 @@ class Airplane(threading.Thread):
 		currentMSec = 0
 
 		while(currentSec < 100):
-			if not self.__sim.getDisplayClient().isConnected():
-				break
+		# 	if not self.__sim.getDisplayClient().isConnected():
+		# 		break
 
 			# Start Condition Critical Region
 			self.__sim.simulator_lock.acquire()

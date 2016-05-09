@@ -13,18 +13,12 @@ from RandomController import *
 from Airplane import *
 from DisplayClient import *
 from Control import *
-import zerorpc
-import json
 
 class Simulator(threading.Thread):
 
-	def __init__(self, displayClient=None, zerorpc=False):
+	def __init__(self, displayClient=None):
 		threading.Thread.__init__(self)
-    
-    self._zerorpc = zerorpc
-    self._zerorpc_client = zerorpc.Client()
-    self._zerorpc_client.connect("tcp://127.0.0.1:4242")
-    
+
 		self.__currentSec = 0
 		self.__currentMSec = 0
 		self.apX = []
@@ -37,9 +31,9 @@ class Simulator(threading.Thread):
 		# (in this case, '_apList' will behave identically to 'apList')
 		self._apList = [] # 'protected' class member
 
-		# if displayClient is None:
-		# 	print 'WARNING: No DisplayClient specified'
-		# 	pass
+		if displayClient is None:
+			# print 'WARNING: No DisplayClient specified'
+			pass
 		self.__displayClient = displayClient
 				
 		# Non-Private class members
@@ -109,9 +103,9 @@ class Simulator(threading.Thread):
 		while (self.__currentSec < 100):
 			#[NOT NECESSARY] Implemented for convenience of having the VC and 
 			# Sim threads ends when quit is called on the DisplayServer
-		# 	if not self.__displayClient.isConnected():
-		# 		print 'SIM: display client NOT connected'
-		# 		break
+			if not self.__displayClient.isConnected():
+				print 'SIM: display client NOT connected'
+				break
 
 			deltaSec = self.__currentSec - lastUpdateSec
 			deltaMSec = self.__currentMSec - lastUpdateMSec
@@ -135,15 +129,10 @@ class Simulator(threading.Thread):
 				self.apZ.append(pos[2])
 				apTheta.append(pos[3])
 				self.apTheta.append(pos[3])
-				
-			if self._zerorpc:
-			  self._zerorpc_client.sendPos(str(self.apX[-1]))
-			 # print 'x-vals:', self.apX
 
 			# send AP positions to the DisplayServer using the DisplayClient
-		# 	if self.__displayClient:
-		# 		self.__displayClient.update(len(self._apList),apX,apY,apTheta)
-		
+			if self.__displayClient:
+				self.__displayClient.update(len(self._apList),apX,apY,apTheta)
 
 			# Start of Conditional Critical Region
 			self.simulator_lock.acquire() 
@@ -181,77 +170,23 @@ class Simulator(threading.Thread):
 			self.__displayClient.traceOff()
 			self.__displayClient.clear()
 		print 'Cleared\n'
-		
-def main(numPlanes):
-
-	sim = Simulator(zerorpc=True)
-
-	leaderType = 1 #  0: RandomController, 1: LeadingController
-	if numPlanes == 1: leaderType = 0 # protection in case only one vehicles
-
-	leader = None
-	fc = None # First controller
-
-	for i in range(numPlanes):
-		initialPos = ([random.random()*100,random.random()*100,
-					random.random()*100,
-					random.random()*2.0*math.pi - math.pi,
-					random.random()*math.pi/2 - math.pi/2])
-		speed = random.random()*5.0 + 5.0
-		initialDX = speed*math.cos(initialPos[3])
-		initialDY = speed*math.sin(initialPos[3])
-		initialDZ = speed*math.cos(initialPos[4])
-
-		initialOmegaX = random.random()*math.pi/2 - math.pi/4
-		initialOmegaZ = random.random()*math.pi/4 - math.pi/8
-
-		apf = Airplane(initialPos, initialDX, initialDY, initialDZ, initialOmegaX, initialOmegaZ)
-		pc = None # null vehicle controller
-
-
-		if i == 0:
-			if leaderType == 0:
-				pc = RandomController(sim,apf)
-			elif leaderType == 1:
-				pc = LeadingController(sim,apf)
-
-			fc = pc # 1st controller is the now defined pc
-			leader = apf 
-
-		else:
-			if leader is not None:
-				pc = FollowingController(sim,apf,leader)
-				if leaderType == 1:
-					fc.addFollower(apf)
-
-			else:
-				print "ERROR: No leader defined."
-				sys.exit()
-
-		apf.addSimulator(sim)
-		sim.addAirplane(apf)
-		pc.start()
-		apf.start()
-
-	sim.start()
-	sim.join()
 
 # Simulator main method called when Simulator.py is executed directly
 if __name__ == '__main__':
 
 
 		# check for proper syntax
-		if len(sys.argv) != 2:
+		if len(sys.argv) != 3:
 			raise IllegalArgumentException("Usage: Simulator <numPlanes> <hostname>\n"+
 				"where <numPlanes> is number of vehicles to run in Simulation\n"+
 				"where <hostname> is where the DisplayServer is running")
 			sys.exit()
 
 		numPlanes = int(sys.argv[1])
-		# host = sys.argv[2]
+		host = sys.argv[2]
 
-		# dc = DisplayClient(host)
-		sim = Simulator()
+		dc = DisplayClient(host)
+		sim = Simulator(dc)
 
 		leaderType = 1 #  0: RandomController, 1: LeadingController
 		if numPlanes == 1: leaderType = 0 # protection in case only one vehicles
