@@ -17,7 +17,8 @@ class UserController(PlaneController):
 		super(UserController, self).__init__(sim,ap)
 
 		self.__ap = ap
-
+		self.__sim = sim
+		
 		self.__minTransSpeed = 5
 		self.__maxTransSpeed = 8
 		self.__maxRotXSpeed = math.radians(10)
@@ -26,13 +27,12 @@ class UserController(PlaneController):
 		self.__avoidWallDist = 15
 		
 	def getThrottle(self):
-	    aircraft_collection = self.__sim.aircraft_collection
-	    throttle = aircraft_collection.find_one({'name': 'b2'})throttle
-	    return throttle
+		aircraft_collection = self.__sim.aircraft_collection
+		throttle = aircraft_collection.find_one({'name': 'b2'})['throttle']
+		return throttle
 
 	def getControl(self,sec,msec):
-	    throttle = getThrottle()
-	    print throttle
+		throttle = self.getThrottle()
 		# avoid walls if we're too close
 		a = PlaneController.avoidWalls(self.__ap.getPosition())
 

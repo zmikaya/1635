@@ -1,5 +1,5 @@
 import noUiSlider from '../../../imports/js/nouislider.min';
-import wNumb from '../../../imports/js/wNumb'; 
+import wNumb from '../../../imports/js/wNumb';
 
 import Aircraft from '../../../../lib/collections/aircraft';
 
@@ -33,7 +33,9 @@ aircraftControls.throttleUp = function(template) {
   let throttleState = Math.round(Number(throttleSlider.noUiSlider.get()));
   if (throttleState < 10) {
     throttleSlider.noUiSlider.set(throttleState + 1);
+    Meteor.call('setThrottle', throttleState + 1);
   }
+  
 };
 
 /* Decrement the aircraft throttle */
@@ -42,6 +44,7 @@ aircraftControls.throttleDown = function(template) {
   let throttleState = Math.round(Number(throttleSlider.noUiSlider.get()));
   if (throttleState > 0) {
     throttleSlider.noUiSlider.set(throttleState - 1);
+    Meteor.call('setThrottle', throttleState - 1);
   }
 };
 
