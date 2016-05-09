@@ -89,7 +89,7 @@ class LeadingController(PlaneController):
 		if a is not None:
 			return a
 
-		c = Control(desiredSpeed, desiredOmegaX, 0)
+		c = Control(desiredSpeed, desiredOmegaX, desiredOmegaZ)
 		return c
 
 	def getClosestPlane(self):

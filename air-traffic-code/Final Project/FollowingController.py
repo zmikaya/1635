@@ -67,7 +67,7 @@ class FollowingController(PlaneController):
 			
 		# bound desired phi
 		if desiredOmegaZ > math.pi/8:
-			desiredOmegaZ > math.pi/8
+			desiredOmegaZ = math.pi/8
 		if desiredOmegaZ < -math.pi/8:
 			desiredOmegaZ = -math.pi/8
 
@@ -83,5 +83,5 @@ class FollowingController(PlaneController):
 		if a is not None:
 			return a
 
-		newControl = Control(desiredSpeed,desiredOmegaX,0)
+		newControl = Control(desiredSpeed,desiredOmegaX,desiredOmegaZ)
 		return newControl

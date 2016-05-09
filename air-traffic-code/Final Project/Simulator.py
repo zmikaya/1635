@@ -21,6 +21,10 @@ class Simulator(threading.Thread):
 
 		self.__currentSec = 0
 		self.__currentMSec = 0
+		self.apX = []
+		self.apY = []
+		self.apZ = []
+		self.apTheta = []
 
 		# NOTE: the '_' prefix is python convention, and does not 
 		# affect the behavior of the targeted member 
@@ -119,8 +123,12 @@ class Simulator(threading.Thread):
 				pos = currentAP.getPosition()
 				vel = currentAP.getVelocity()
 				apX.append(pos[0])
+				self.apX.append(pos[0])
 				apY.append(pos[1])
-				apTheta.append(pos[2])
+				self.apY.append(pos[1])
+				self.apZ.append(pos[2])
+				apTheta.append(pos[3])
+				self.apTheta.append(pos[3])
 
 			# send AP positions to the DisplayServer using the DisplayClient
 			if self.__displayClient:
