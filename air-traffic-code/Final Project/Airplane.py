@@ -166,7 +166,8 @@ class Airplane(threading.Thread):
 
 	def controlPlane(self,c):
 		speed = c.getSpeed()
-		dtheta = c.getRotVelX()
+		dtheta = c.getRotVelZ()
+		dphi = c.getRotVelX()
 
 		self.ap_lock.acquire() # start critical region
 		# modify internal dx and dy values
@@ -175,8 +176,8 @@ class Airplane(threading.Thread):
 		self.__dz = speed*math.cos(self.__phi)
 
 		# change dtheta and dphi to supplied rotational velocities
-		self.__dtheta = c.getRotVelX()
-		self.__dphi = c.getRotVelZ()
+		self.__dtheta = dtheta
+		self.__dphi = dphi
 		
 		self.clampVelocity()
 		self.ap_lock.release() # end critical region

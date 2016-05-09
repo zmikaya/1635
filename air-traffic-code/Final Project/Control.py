@@ -11,7 +11,7 @@ class Control:
 	
 	def __init__(self,s,omegaX,omegaZ):
 		# Check to make sure speed and omegaZ are in range
-		if (s<5 or s>10):
+		if (s<0 or s>400):
 			raise IllegalArgumentException("Speed out of range")
 		if (omegaX < -math.pi/2 or omegaX >= math.pi/2):
 			raise IllegalArgumentException("OmegaX out of range")
