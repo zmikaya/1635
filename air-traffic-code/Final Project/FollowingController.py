@@ -38,7 +38,7 @@ class FollowingController(PlaneController):
 		else:
 			desiredTheta = math.atan2(yDiff,xDiff)
 			
-		if (math.fbs(zDiff) < 1e-6):
+		if (math.fabs(zDiff) < 1e-6):
 			# edge cases for zDiff ~= 0
 			if yDiff > 0:
 				desiredPhi = math.pi/4
@@ -68,7 +68,7 @@ class FollowingController(PlaneController):
 		# bound desired phi
 		if desiredOmegaZ > math.pi/8:
 			desiredOmegaZ > math.pi/8
-		if desiredOmegaZ > -math.pi/8:
+		if desiredOmegaZ < -math.pi/8:
 			desiredOmegaZ = -math.pi/8
 
 		distance = math.sqrt(xDiff*xDiff + yDiff*yDiff + zDiff*zDiff)
@@ -83,5 +83,5 @@ class FollowingController(PlaneController):
 		if a is not None:
 			return a
 
-		newControl = Control(desiredSpeed,desiredOmegaX, desiredOmegaZ)
+		newControl = Control(desiredSpeed,desiredOmegaX,0)
 		return newControl

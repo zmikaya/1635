@@ -199,7 +199,7 @@ if __name__ == '__main__':
 			initialOmegaX = random.random()*math.pi/2 - math.pi/4
 			initialOmegaZ = random.random()*math.pi/4 - math.pi/8
 
-			apf = Airplane(initialPos, initialDX, initialDY, initalDZ, initialOmegaX, initalOmegaZ)
+			apf = Airplane(initialPos, initialDX, initialDY, initialDZ, initialOmegaX, initialOmegaZ)
 			pc = None # null vehicle controller
 
 

@@ -76,7 +76,7 @@ class LeadingController(PlaneController):
 		if desiredOmegaX < -math.pi/4:
 			desiredOmegaX = -math.pi/4
 			
-		desiredPhi *= 0.5*gain
+		desiredPhi = 0.5*gain
 		if desiredOmegaZ > math.pi/8:
 			desiredOmegaZ = math.pi/8
 		if desiredOmegaZ < -math.pi/8:
@@ -89,7 +89,7 @@ class LeadingController(PlaneController):
 		if a is not None:
 			return a
 
-		c = Control(desiredSpeed, desiredOmegaX, desiredOmegaZ)
+		c = Control(desiredSpeed, desiredOmegaX, 0)
 		return c
 
 	def getClosestPlane(self):
@@ -102,7 +102,7 @@ class LeadingController(PlaneController):
 			xDist = leaderPos[0] - followerPos[0]
 			yDist = leaderPos[1] - followerPos[1]
 			zDist = leaderPos[2] - followerPos[2]
-			totalDist = sqrt(xDist**2 + yDist**2 + zDist**2)
+			totalDist = math.sqrt(xDist**2 + yDist**2 + zDist**2)
 			
 
 			if totalDist < closestDist:
