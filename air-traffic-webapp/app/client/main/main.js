@@ -9,6 +9,8 @@ import Stats from '../imports/js/stats.min';
 import controlVals from './imports/utils/controlVals';
 import modules from './imports/modules/mainModules';
 
+import Aircraft from '../../lib/collections/aircraft';
+
 import './main.html';
 
 /* Handle keyboard, mouse, or other peripheral user interactions */
@@ -146,12 +148,14 @@ Template.mainGraphics.onRendered(function() {
 	}
 
 	function render() {
+    // let x_pos = Aircraft.findOne({'name': 'b2'})['x-pos']
+    // console.log(x_pos);
     
 	  var deltaT = clock.getDelta(),
 	  time = clock.getElapsedTime() * 10;
 
     modules.aircraftControls.dynamicsMain(template, aircraft, deltaT);
-    
+
 		for ( var i = 0, l = geometry.vertices.length; i < l; i ++ ) {
 
 			geometry.vertices[ i ].y = 35 * Math.sin( i / 5 + ( time + i ) / 7 );

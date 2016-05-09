@@ -1,6 +1,8 @@
 import noUiSlider from '../../../imports/js/nouislider.min';
 import wNumb from '../../../imports/js/wNumb'; 
 
+import Aircraft from '../../../../lib/collections/aircraft';
+
 
 let aircraftControls = {};
 
@@ -51,13 +53,24 @@ aircraftControls.dynamicsMain = function(template, aircraft, deltaT) {
 };
 
 aircraftControls._updatePosition = function(template, aircraft, deltaT) {
-  let throttleSlider = template.throttleSlider.get();
-  let throttleState = Math.round(Number(throttleSlider.noUiSlider.get()));
-  let speed = throttleState*40;
-  let distance = speed * deltaT;
+  // let throttleSlider = template.throttleSlider.get();
+  // let throttleState = Math.round(Number(throttleSlider.noUiSlider.get()));
+  // let speed = throttleState*40;
+  // let distance = speed * deltaT;
+  // for (let i=0; i<aircraft.length; i++) {
+  //   aircraft[i].position.z += distance;
+  // }
+  let aircraft_pos = Aircraft.findOne({'name': 'b2'});
+  let x_pos = aircraft_pos['x-pos'];
+  let y_pos = aircraft_pos['y-pos'];
+  let z_pos = aircraft_pos['z-pos'];
+  
   for (let i=0; i<aircraft.length; i++) {
-    aircraft[i].position.z += distance;
+    aircraft[i].position.x = x_pos + 300;
+    aircraft[i].position.y = y_pos + 300;
+    aircraft[i].position.z = z_pos + 300;
   }
+  
 };
 
 export default aircraftControls;

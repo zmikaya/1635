@@ -15,16 +15,23 @@ from DisplayClient import *
 from Control import *
 import zerorpc
 import json
+from pymongo import MongoClient
 
 class Simulator(threading.Thread):
 
-	def __init__(self, displayClient=None, zerorpc=False):
+	def __init__(self, displayClient=None, stream=False):
 		threading.Thread.__init__(self)
     
-    self._zerorpc = zerorpc
-    self._zerorpc_client = zerorpc.Client()
-    self._zerorpc_client.connect("tcp://127.0.0.1:4242")
-    
+		self._stream = stream
+		self._zerorpc_client = zerorpc.Client()
+		self._zerorpc_client.connect("tcp://127.0.0.1:4242")
+		
+		self.db_ip = 'localhost'
+		self.db_port = 8081
+		client = MongoClient(self.db_ip, self.db_port)
+		meteor_db = client.meteor
+		self.aircraft_collection = meteor_db.aircraft
+        
 		self.__currentSec = 0
 		self.__currentMSec = 0
 		self.apX = []
@@ -88,6 +95,13 @@ class Simulator(threading.Thread):
 		self.numControlToUpdate += 1
 		self.numPlaneToUpdate += 1
 		self.simulator_lock.release() # end critical region
+		
+	def stream_data(self, aircraft_name, data):
+		self.aircraft_collection.update_one(
+			{'name': aircraft_name},
+			{'$set': {'x-pos': data[0], 'y-pos': data[1], 'z-pos': data[2]}},
+			upsert=True
+		)
 
 	def run(self):
 
@@ -136,9 +150,11 @@ class Simulator(threading.Thread):
 				apTheta.append(pos[3])
 				self.apTheta.append(pos[3])
 				
-			if self._zerorpc:
-			  self._zerorpc_client.sendPos(str(self.apX[-1]))
-			 # print 'x-vals:', self.apX
+			# if self._stream:
+			  #self._zerorpc_client.sendPos(str(self.apX[-1]))
+			  #self._zerorpc_client.sendPos('test')
+			self.stream_data('b2', [self.apX[-1], self.apY[-1], self.apZ[-1]])
+			  #print 'x-vals:', self.apX[-1]
 
 			# send AP positions to the DisplayServer using the DisplayClient
 		# 	if self.__displayClient:
@@ -182,9 +198,9 @@ class Simulator(threading.Thread):
 			self.__displayClient.clear()
 		print 'Cleared\n'
 		
-def main(numPlanes):
+def mainRun(numPlanes):
 
-	sim = Simulator(zerorpc=True)
+	sim = Simulator(stream=True)
 
 	leaderType = 1 #  0: RandomController, 1: LeadingController
 	if numPlanes == 1: leaderType = 0 # protection in case only one vehicles
