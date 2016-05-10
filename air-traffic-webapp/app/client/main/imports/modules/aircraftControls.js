@@ -90,9 +90,16 @@ aircraftControls.pitchDown = function(template) {
   }
 };
 
+aircraftControls._resetOrientation = function(template) {
+  template.rollState.set(0);
+  Meteor.call('setRoll', template.rollState.get());
+  template.pitchState.set(0);
+  Meteor.call('setPitch', template.pitchState.get());
+};
+
 aircraftControls.startSystem = function(template) {
+  this._resetOrientation(template);
   Meteor.call('startSystem');
-  
 };
 
 aircraftControls.stopSystem = function(template) {

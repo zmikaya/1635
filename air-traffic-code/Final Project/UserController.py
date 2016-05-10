@@ -52,7 +52,7 @@ class UserController(PlaneController):
 		# if a is not None:
 		# 	return a
 		# otherwise generate a random control
-		speed = throttle*20
+		speed = throttle*15
 		omegaX = roll
 		omegaZ = pitch
 		c = Control(speed, omegaX, omegaZ)
