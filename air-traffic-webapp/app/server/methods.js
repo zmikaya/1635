@@ -18,11 +18,31 @@ Meteor.methods({
     
     'setInitialAircraftPos': function(pos) {
         Aircraft.upsert({'name': 'b2'}, 
-        {$set: {'x-pos': pos[0], 
+            {$set: {'x-pos': pos[0], 
                 'y-pos': pos[1], 
                 'z-pos': pos[2],
                 'pitch': pos[3],
                 'roll': pos[4]
         }});
+    },
+    
+    'stopSystem': function() {
+        Aircraft.upsert({'name': 'b2'},
+            {$set: {'halt': 1}}
+        );
+    },
+    
+    'startSystem': function() {
+        // Make sure the system was actually stopped.
+        Meteor.call('stopSystem');
+        Aircraft.upsert({'name': 'b2'},
+            {$set: {'halt': 0}}
+        );
+        
+        let client = new Zerorpc()
+        client.connect("tcp://0.0.0.0:4242");
+        client.invoke('startSimulator', 'filler', function(error, res) {
+            console.log(error);
+        });
     }
 })

@@ -246,7 +246,7 @@ class PlaneController(threading.Thread):
 		currentSec = 0
 		currentMSec = 0
 
-		while(currentSec < self.__sim.duration):
+		while(currentSec < self.__sim.duration) and not self.__sim.halt:
 			
 			#[NOT NECESSARY] Implemented for convenience of having the PC and 
 			# Sim threads ends when quit is called on the DisplayServer

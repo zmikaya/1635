@@ -29,6 +29,15 @@ canvas {
   top: 0%;
 }
 
+.bwrap { margin:0.5em 0 0 0;
+		position: absolute;
+		top: 0px; width: 100%;
+		left: 40%;
+}
+button { font-family:georgia; border:0; background:#000; color:#fff; padding:0.2em 0.5em; cursor:pointer; border-radius:3px; }
+button:hover { background:#333 }
+#buttons_cars button { color:#fa0 }
+
 /*-----------------------------*/
 
 

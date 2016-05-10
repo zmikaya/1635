@@ -90,6 +90,15 @@ aircraftControls.pitchDown = function(template) {
   }
 };
 
+aircraftControls.startSystem = function(template) {
+  Meteor.call('startSystem');
+  
+};
+
+aircraftControls.stopSystem = function(template) {
+  Meteor.call('stopSystem');
+};
+
 /* This is the main function that runs any private functions that involve
    the aircraft's primary dynamics.
 */

@@ -41,6 +41,7 @@ class Simulator(threading.Thread):
 		self.apTheta = []
 		
 		self.duration = 50
+		self.halt = False
 
 		# NOTE: the '_' prefix is python convention, and does not 
 		# affect the behavior of the targeted member 
@@ -112,6 +113,9 @@ class Simulator(threading.Thread):
 			{'$set': {'pitch': angles[0], 'roll': angles[1]}},
 			upsert=True
 		)
+		
+	def haltSystem(self):
+		self.halt = True
 
 	def run(self):
 
@@ -133,7 +137,7 @@ class Simulator(threading.Thread):
 
 		print "Simulator thread started"
 
-		while (self.__currentSec < self.duration):
+		while (self.__currentSec < self.duration) and not self.halt:
 			#[NOT NECESSARY] Implemented for convenience of having the VC and 
 			# Sim threads ends when quit is called on the DisplayServer
 		# 	if not self.__displayClient.isConnected():
@@ -201,7 +205,9 @@ class Simulator(threading.Thread):
 			self.numControlToUpdate = len(self._apList)
 			self.numPlaneToUpdate = len(self._apList)
 			self.simulator_lock.release() # End of Conditinal Critical Region
-
+			
+			# check db if this should be running
+			self.halt = self.aircraft_collection.find_one({'name': 'b2'})['halt']
 
 			#[DEBUG] delay run speed of program to read print statements
 			#time.sleep(1)
@@ -213,7 +219,7 @@ class Simulator(threading.Thread):
 		
 def mainRun(numPlanes):
 
-	sim = Simulator(stream=True)
+	sim = Simulator()
 
 	leaderType = 1 #  0: RandomController, 1: LeadingController
 	if numPlanes == 1: leaderType = 0 # protection in case only one vehicles
@@ -222,17 +228,14 @@ def mainRun(numPlanes):
 	fc = None # First controller
 
 	for i in range(numPlanes):
-		initialPos = ([random.random()*100,random.random()*100,
-					random.random()*100,
-					random.random()*2.0*math.pi - math.pi,
-					random.random()*math.pi/2 - math.pi/2])
+		initialPos = ([300, 300, 300, 0, 0])
 		speed = random.random()*5.0 + 5.0
-		initialDX = speed*math.cos(initialPos[0])
-		initialDY = speed*math.sin(initialPos[1])
-		initialDZ = speed*math.cos(initialPos[2])
+		initialDX = speed*math.cos(initialPos[3])
+		initialDY = speed*math.sin(initialPos[3])
+		initialDZ = speed*math.sin(initialPos[4])
 
-		initialOmegaX = random.random()*math.pi/2 - math.pi/4
-		initialOmegaZ = random.random()*math.pi/4 - math.pi/8
+		initialOmegaX = 0
+		initialOmegaZ = 0
 
 		apf = Airplane(initialPos, initialDX, initialDY, initialDZ, initialOmegaX, initialOmegaZ)
 		pc = None # null vehicle controller
@@ -240,7 +243,7 @@ def mainRun(numPlanes):
 
 		if i == 0:
 			if leaderType == 0:
-				pc = RandomController(sim,apf)
+				pc = UserController(sim, apf)
 			elif leaderType == 1:
 				pc = LeadingController(sim,apf)
 

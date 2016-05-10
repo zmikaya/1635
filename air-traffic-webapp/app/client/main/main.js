@@ -16,8 +16,10 @@ import './main.html';
 
 /* Initialize state variables */
 Template.mainGraphics.onCreated(function() {
+	Meteor.call('stopSystem');
 	this.rollState = new ReactiveVar(0);
 	this.pitchState = new ReactiveVar(0);
+	this.boxObjects = new ReactiveVar([]);
 });
 
 /* Handle keyboard, mouse, or other peripheral user interactions */
@@ -105,8 +107,12 @@ Template.mainGraphics.onRendered(function() {
 		  scene.add(obj);
 		  obj.position.set(300, 300, 300);
 		  aircraft.push(obj);
-		  // obj.rotateOnAxis(new THREE.Vector3(1, 0, 0), 3*Math.PI/2);
 		  setCameraTarget(obj, 'aircraft');
+		  // Create boxes
+			let boxes = modules.objects.create(template, [obj.position.x, obj.position.y, obj.position.z]); 
+			for (let i=0; i<boxes.length; i++) {
+				scene.add(boxes[i]);			
+		}
 		});
 		
 		function setCameraTarget(obj, name) {
@@ -163,11 +169,12 @@ Template.mainGraphics.onRendered(function() {
 	function render() {
     // let x_pos = Aircraft.findOne({'name': 'b2'})['x-pos']
     // console.log(x_pos);
-    
+		
 	  var deltaT = clock.getDelta(),
 	  time = clock.getElapsedTime() * 10;
 
     modules.aircraftControls.dynamicsMain(template, aircraft, deltaT);
+    modules.objects.controlDynamics(template, aircraft[0], deltaT);
 
 		for ( var i = 0, l = geometry.vertices.length; i < l; i ++ ) {
 
