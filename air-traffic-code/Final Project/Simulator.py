@@ -40,7 +40,7 @@ class Simulator(threading.Thread):
 		self.apZ = []
 		self.apTheta = []
 		
-		self.duration = 50
+		self.duration = 200
 		self.halt = False
 
 		# NOTE: the '_' prefix is python convention, and does not 

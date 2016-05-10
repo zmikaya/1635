@@ -20,6 +20,7 @@ Template.mainGraphics.onCreated(function() {
 	this.rollState = new ReactiveVar(0);
 	this.pitchState = new ReactiveVar(0);
 	this.boxObjects = new ReactiveVar([]);
+	this.aircraftSelection = new ReactiveVar('c130');
 });
 
 /* Handle keyboard, mouse, or other peripheral user interactions */
@@ -33,6 +34,16 @@ Template.mainGraphics.onRendered(function() {
       console.log(template.pitchState.get());
     }
   });
+});
+
+Template.mainGraphics.events({
+	'click #tie': function(event, template) {
+		template.aircraftSelection.set('tie');
+	},
+	
+	'click #c130': function(event, template) {
+		template.aircraftSelection.set('c130');
+	}
 });
 
 Template.mainGraphics.onRendered(function() {
@@ -65,7 +76,6 @@ Template.mainGraphics.onRendered(function() {
 	var aircraft = [];
 
 	init();
-	animate();
 
 	function init() {
 
@@ -103,7 +113,16 @@ Template.mainGraphics.onRendered(function() {
 		
 		// Load aircraft
 		var loader = new THREE.ObjectLoader();
-		loader.load('./threejs/objects/us-c-130-hercules-airplane-threejs/us-c-130-hercules-airplane.json', function(obj) {
+		// let objSource = './threejs/objects/us-c-130-hercules-airplane-threejs/us-c-130-hercules-airplane.json';
+		// let objName = 'c130';
+		
+		let objSource = './threejs/objects/star-wars-vader-tie-fighter.json';
+		let objName = 'tie';
+		loader.load(objSource, function(obj) {
+			obj.name = objName;
+			if (objName == 'tie') {
+				obj.scale.set(6, 6, 6);
+			}
 		  scene.add(obj);
 		  obj.position.set(300, 300, 300);
 		  aircraft.push(obj);
@@ -112,7 +131,8 @@ Template.mainGraphics.onRendered(function() {
 			let boxes = modules.objects.create(template, [obj.position.x, obj.position.y, obj.position.z]); 
 			for (let i=0; i<boxes.length; i++) {
 				scene.add(boxes[i]);			
-		}
+			}
+			animate();
 		});
 		
 		function setCameraTarget(obj, name) {
@@ -167,9 +187,11 @@ Template.mainGraphics.onRendered(function() {
 	}
 
 	function render() {
-    // let x_pos = Aircraft.findOne({'name': 'b2'})['x-pos']
-    // console.log(x_pos);
-		
+    // if (scene.children) {
+    // 	modules.objects.switchAircraft(template, scene, camera, aircraft);
+    // }
+    
+
 	  var deltaT = clock.getDelta(),
 	  time = clock.getElapsedTime() * 10;
 
