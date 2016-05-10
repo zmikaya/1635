@@ -122,6 +122,11 @@ Template.mainGraphics.onRendered(function() {
 			obj.name = objName;
 			if (objName == 'tie') {
 				obj.scale.set(6, 6, 6);
+				let audio = document.createElement('audio');
+				let source = document.createElement('source');
+				source.src = './threejs/audio/tie-sound.mp3';
+				audio.appendChild(source);
+				audio.play();
 			}
 		  scene.add(obj);
 		  obj.position.set(300, 300, 300);
