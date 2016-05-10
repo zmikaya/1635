@@ -171,7 +171,6 @@ class Airplane(threading.Thread):
 
 		self.ap_lock.acquire() # start critical region
 		# modify internal dx and dy values
-		print self.__theta
 		self.__dx = speed*math.cos(self.__theta)
 		self.__dy = speed*math.sin(self.__theta)
 		self.__dz = speed*math.sin(self.__phi)

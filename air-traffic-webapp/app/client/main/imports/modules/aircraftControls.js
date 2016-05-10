@@ -1,3 +1,5 @@
+/* global THREE */
+
 import noUiSlider from '../../../imports/js/nouislider.min';
 import wNumb from '../../../imports/js/wNumb';
 
@@ -48,6 +50,42 @@ aircraftControls.throttleDown = function(template) {
   }
 };
 
+/* Roll aircraft toward the left */
+aircraftControls.rollLeft = function(template) {
+  let rollState = template.rollState;
+  let rollStateVal = rollState.get();
+  if (rollStateVal > -Math.PI/2) {
+    rollState.set(rollStateVal - (Math.PI/2)/5);
+  }
+};
+
+/* Roll aircraft toward the right */
+aircraftControls.rollRight = function(template) {
+  let rollState = template.rollState;
+  let rollStateVal = rollState.get();
+  if (rollStateVal < Math.PI/2) {
+    rollState.set(rollStateVal + (Math.PI/2)/5);
+  }
+};
+
+/* Pitch aircraft up */
+aircraftControls.pitchUp = function(template) {
+  let pitchState = template.pitchState;
+  let pitchStateVal = pitchState.get();
+  if (pitchStateVal < Math.PI/2) {
+    pitchState.set(pitchStateVal + (Math.PI/2)/5);
+  }
+};
+
+/* Pitch aircraft down */
+aircraftControls.pitchDown = function(template) {
+  let pitchState = template.pitchState;
+  let pitchStateVal = pitchState.get();
+  if (pitchStateVal > -Math.PI/2) {
+    pitchState.set(pitchStateVal - (Math.PI/2)/5);
+  }
+};
+
 /* This is the main function that runs any private functions that involve
    the aircraft's primary dynamics.
 */
@@ -69,11 +107,17 @@ aircraftControls._updatePosition = function(template, aircraft, deltaT) {
   let y_pos = aircraft_pos['y-pos'];
   let z_pos = aircraft_pos['z-pos'];
   
+  let rollStateVal = template.rollState.get();
+  let pitchStateVal = template.pitchState.get();
+  
   for (let i=0; i<aircraft.length; i++) {
-    aircraft[i].position.x = 300;
-    aircraft[i].position.y = 300;
-    aircraft[i].position.z = x_pos;
-    console.log(Math.abs(x_pos) + 300);
+    let obj = aircraft[i];
+    obj.position.x = x_pos;
+    obj.position.y = y_pos;
+    obj.position.z = z_pos;
+    obj.rotation.x = pitchStateVal;
+    obj.rotation.z = rollStateVal;
+    // console.log(Math.abs(x_pos) + 300);
   }
   
 };

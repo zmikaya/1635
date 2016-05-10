@@ -13,6 +13,13 @@ import Aircraft from '../../lib/collections/aircraft';
 
 import './main.html';
 
+
+/* Initialize state variables */
+Template.mainGraphics.onCreated(function() {
+	this.rollState = new ReactiveVar(0);
+	this.pitchState = new ReactiveVar(0);
+});
+
 /* Handle keyboard, mouse, or other peripheral user interactions */
 Template.mainGraphics.onRendered(function() {
   let template = this;
@@ -21,6 +28,7 @@ Template.mainGraphics.onRendered(function() {
     if (controlValKeys.indexOf(String(e.which)) !== -1) {
       let methodName = controlVals[e.which];
       modules.aircraftControls[methodName](template);
+      console.log(template.pitchState.get());
     }
   });
 });
@@ -97,6 +105,7 @@ Template.mainGraphics.onRendered(function() {
 		  scene.add(obj);
 		  obj.position.set(300, 300, 300);
 		  aircraft.push(obj);
+		  // obj.rotateOnAxis(new THREE.Vector3(1, 0, 0), 3*Math.PI/2);
 		  setCameraTarget(obj, 'aircraft');
 		});
 		
