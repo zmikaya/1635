@@ -34,15 +34,15 @@ class UserController(PlaneController):
 	def getControl(self,sec,msec):
 		throttle = self.getThrottle()
 		# avoid walls if we're too close
-		a = PlaneController.avoidWalls(self.__ap.getPosition())
+		# a = PlaneController.avoidWalls(self.__ap.getPosition())
 
-		if a is not None:
-			return a
+		# if a is not None:
+		# 	return a
 		# otherwise generate a random control
-		randSpeed = random.random()*5 + 5
-		randOmegaX = random.random()*math.pi/2.0 - math.pi/4.0
-		randOmegaZ = random.random()*math.pi/4.0 - math.pi/8.0
-		c = Control(randSpeed,randOmegaX, randOmegaZ)
+		speed = throttle*20
+		omegaX = 0
+		omegaZ = 0
+		c = Control(speed, omegaX, omegaZ)
 
 		return c
 

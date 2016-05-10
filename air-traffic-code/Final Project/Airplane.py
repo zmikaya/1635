@@ -39,8 +39,8 @@ class Airplane(threading.Thread):
 		# intrinsic "self" lock
 		self.ap_lock = threading.RLock()
 
-		self.clampPosition()
-		self.clampVelocity()
+		# self.clampPosition()
+		# self.clampVelocity()
 
 		self.__sim = None
 
@@ -59,51 +59,51 @@ class Airplane(threading.Thread):
 	def getPlaneID(self):
 		return self.__planeID
 
-	def clampPosition(self): # clamps position values (useful immediately after values have been changed)
+	# def clampPosition(self): # clamps position values (useful immediately after values have been changed)
 
-		# clamp X&Y&Z values if necessary
-		self.__x = min(max(self.__x,0),100)
-		self.__y = min(max(self.__y,0),100)
-		self.__z = min(max(self.__z,0),100)
+	# 	# clamp X&Y&Z values if necessary
+	# 	self.__x = min(max(self.__x,0),100)
+	# 	self.__y = min(max(self.__y,0),100)
+	# 	self.__z = min(max(self.__z,0),100)
 		
-		# wrap Theta & Phi angle values if necessary
-		self.__theta = min(max(self.__theta, -math.pi), math.pi)
-		self.__phi = min(max(self.__phi, -math.pi/2), math.pi/2)
-		if (math.fabs(self.__theta-math.pi) < 1e-6):
-			self.__theta = -math.pi
-		if (math.fabs(self.__phi-math.pi/2) < 1e-6):
-			self.__phi = -math.pi/2
+	# 	# wrap Theta & Phi angle values if necessary
+	# 	self.__theta = min(max(self.__theta, -math.pi), math.pi)
+	# 	self.__phi = min(max(self.__phi, -math.pi/2), math.pi/2)
+	# 	if (math.fabs(self.__theta-math.pi) < 1e-6):
+	# 		self.__theta = -math.pi
+	# 	if (math.fabs(self.__phi-math.pi/2) < 1e-6):
+	# 		self.__phi = -math.pi/2
 
-	def clampVelocity(self): # clamps velocity values (useful immediately after values have been changed)
+	# def clampVelocity(self): # clamps velocity values (useful immediately after values have been changed)
 		
-		speed = math.sqrt(self.__dx*self.__dx + self.__dy*self.__dy + self.__dz*self.__dz)
+	# 	speed = math.sqrt(self.__dx*self.__dx + self.__dy*self.__dy + self.__dz*self.__dz)
 
-		# clamp dx & dy values if necessary
-		if (speed < 5):
-			if speed == 0: speed = 1 # condition to catch div/0 error
-			self.__dx = self.__dx*(5/speed)
-			self.__dy = self.__dy*(5/speed)
-			self.__dz = self.__dz*(5/speed)
-		elif (speed > 10):
-			self.__dx = self.__dx*(10/speed)
-			self.__dy = self.__dy*(10/speed)
-			self.__dz = self.__dz*(10/speed)
+	# 	# clamp dx & dy values if necessary
+	# 	if (speed < 5):
+	# 		if speed == 0: speed = 1 # condition to catch div/0 error
+	# 		self.__dx = self.__dx*(5/speed)
+	# 		self.__dy = self.__dy*(5/speed)
+	# 		self.__dz = self.__dz*(5/speed)
+	# 	elif (speed > 10):
+	# 		self.__dx = self.__dx*(10/speed)
+	# 		self.__dy = self.__dy*(10/speed)
+	# 		self.__dz = self.__dz*(10/speed)
 	
 
-		# clamp dtheta value (rotational velocity) if necessary
-		if (self.__dtheta < -math.pi/4):
-			self.__dtheta = -math.pi/4
-		elif (self.__dtheta > math.pi/4):
-			self.__dtheta = math.pi/4
+	# 	# clamp dtheta value (rotational velocity) if necessary
+	# 	if (self.__dtheta < -math.pi/4):
+	# 		self.__dtheta = -math.pi/4
+	# 	elif (self.__dtheta > math.pi/4):
+	# 		self.__dtheta = math.pi/4
 		
-		# clamp dphi value (rotational velocity) if necessary
-		if (self.__dphi < -math.pi/8):
-			self.__dphi = math.pi/8
-		elif (self.__dphi > math.pi/8):
-			self.__dphi = math.pi/8
+	# 	# clamp dphi value (rotational velocity) if necessary
+	# 	if (self.__dphi < -math.pi/8):
+	# 		self.__dphi = math.pi/8
+	# 	elif (self.__dphi > math.pi/8):
+	# 		self.__dphi = math.pi/8
 
-		self.__dtheta = min(max(self.__dtheta,-math.pi/4),math.pi/4)
-		self.__dphi = min(max(self.__dphi, -math.pi/8), math.pi/8)
+	# 	self.__dtheta = min(max(self.__dtheta,-math.pi/4),math.pi/4)
+	# 	self.__dphi = min(max(self.__dphi, -math.pi/8), math.pi/8)
 
 	def checkIfNoLock(self):
 		if self.__sim is None:
@@ -147,7 +147,7 @@ class Airplane(threading.Thread):
 		self.__theta = pos[3]
 		self.__phi = pos[4]
 
-		self.clampPosition()
+		# self.clampPosition()
 		self.ap_lock.release() # end critical region
 
 	def setVelocity(self,vel):
@@ -161,7 +161,7 @@ class Airplane(threading.Thread):
 		self.__dtheta = vel[3]
 		self.__dphi = vel[4]
 
-		self.clampVelocity()
+		# self.clampVelocity()
 		self.ap_lock.release() # end critical region
 
 	def controlPlane(self,c):
@@ -171,15 +171,16 @@ class Airplane(threading.Thread):
 
 		self.ap_lock.acquire() # start critical region
 		# modify internal dx and dy values
+		print self.__theta
 		self.__dx = speed*math.cos(self.__theta)
 		self.__dy = speed*math.sin(self.__theta)
-		self.__dz = speed*math.cos(self.__phi)
+		self.__dz = speed*math.sin(self.__phi)
 
 		# change dtheta and dphi to supplied rotational velocities
 		self.__dtheta = dtheta
 		self.__dphi = dphi
 		
-		self.clampVelocity()
+		# self.clampVelocity()
 		self.ap_lock.release() # end critical region
 
 	@staticmethod
@@ -244,41 +245,46 @@ class Airplane(threading.Thread):
 
 		# Assuming that  dx,  dy, and  dtheta was set beforehand by controlPlane()
 		s = math.sqrt(self.__dx*self.__dx + self.__dy*self.__dy + self.__dz*self.__dz)
-
-		if (abs(self.__dtheta) > 1e-3): # The following model is not well defined when dtheta = 0
-			# Circle center and radius
-			r = s/self.__dtheta
-
-			xc = self.__x - r * math.sin(self.__theta)
-			yc = self.__y + r * math.cos(self.__theta)
-			zc = self.__z + r * math.cos(self.__phi)
-
-			self.__theta = self.__theta + self.__dtheta*t
-
-			rtheta = ((self.__theta-math.pi) % (2*math.pi))
-			rphi = ((self.__phi - math.pi/2) % (math.pi))
-			if (rtheta < 0): # Note that % in java is remainder, not modulo.
-				rtheta += 2*math.pi
-			if (rphi < 0):
-				rphi += math.pi
-
-			self.__theta = rtheta - math.pi;
-			self.__phi = rphi - math.pi;
-
-			# Update Values
-			self.__x = xc + r * math.sin(self.__theta)
-			self.__y = yc - r * math.cos(self.__theta)
-			self.__z = zc - r * math.cos(self.__phi)
-			self.__dx = s * math.cos(self.__theta)
-			self.__dy = s * math.sin(self.__theta)
 		
-		else:	# Straight motion. No change in theta.
+		if (abs(self.__dtheta) > 1e-3): # The following model is not well defined when dtheta = 0
+			# # Circle center and radius
+			# r = s/self.__dtheta
+
+			# xc = self.__x - r * math.sin(self.__theta)
+			# yc = self.__y + r * math.cos(self.__theta)
+			# zc = self.__z + r * math.cos(self.__phi)
+
+			# self.__theta = self.__theta + self.__dtheta*t
+
+			# rtheta = ((self.__theta-math.pi) % (2*math.pi))
+			# rphi = ((self.__phi - math.pi/2) % (math.pi))
+			# if (rtheta < 0): # Note that % in java is remainder, not modulo.
+			# 	rtheta += 2*math.pi
+			# if (rphi < 0):
+			# 	rphi += math.pi
+
+			# self.__theta = rtheta - math.pi;
+			# self.__phi = rphi - math.pi;
+
+			# # Update Values
+			# self.__x = xc + r * math.sin(self.__theta)
+			# self.__y = yc - r * math.cos(self.__theta)
+			# self.__z = zc - r * math.cos(self.__phi)
+			# self.__dx = s * math.cos(self.__theta)
+			# self.__dy = s * math.sin(self.__theta)
+			# print self.__dy
 			self.__x = self.__x + self.__dx*t
 			self.__y = self.__y + self.__dy*t
 			self.__z = self.__z + self.__dz*t
-
-		self.clampPosition()
-		self.clampVelocity()
+			
+		else:	# Straight motion. No change in theta.
+			# print self.__dy
+			self.__x = self.__x + self.__dx*t
+			self.__y = self.__y + self.__dy*t
+			self.__z = self.__z + self.__dz*t
+		
+		# self.clampPosition()
+		# self.clampVelocity()
 
 		self.ap_lock.release() # end critical region
 
@@ -315,8 +321,8 @@ class Airplane(threading.Thread):
 				currentSec = self.__sim.getCurrentSec()
 				currentMSec = self.__sim.getCurrentMSec()
 
-			#self.advanceNoiseFree(0,10)
-			self.advance(0,10)
+			self.advanceNoiseFree(0,10)
+			#self.advance(0,10)
 
 			# End Condition Critical Region
 			self.__sim.simulator_lock.release()

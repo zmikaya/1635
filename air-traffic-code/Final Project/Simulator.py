@@ -111,7 +111,9 @@ class Simulator(threading.Thread):
 		# call vehicle.updateState() with arguments of 0 and 10, but for a
 		# real-time implementation in a later assignment, we're actually going to
 		# need to measure the elapsed time. 
-
+		
+		self.stream_data('b2', [300, 300, 300])
+		
 		lastUpdateSec = self.__currentSec
 		lastUpdateMSec = self.__currentMSec
 
@@ -155,7 +157,7 @@ class Simulator(threading.Thread):
 			  #self._zerorpc_client.sendPos(str(self.apX[-1]))
 			  #self._zerorpc_client.sendPos('test')
 			self.stream_data('b2', [self.apX[-1], self.apY[-1], self.apZ[-1]])
-			  #print 'x-vals:', self.apX[-1]
+			print 'x: {0}; y: {1}; z: {2}'.format(self.apX[-1], self.apY[-1], self.apZ[-1])
 
 			# send AP positions to the DisplayServer using the DisplayClient
 		# 	if self.__displayClient:
@@ -277,14 +279,11 @@ if __name__ == '__main__':
 		fc = None # First controller
 
 		for i in range(numPlanes):
-			initialPos = ([random.random()*100,random.random()*100,
-						random.random()*100,
-						random.random()*2.0*math.pi - math.pi,
-						random.random()*math.pi/2 - math.pi/2])
+			initialPos = ([300, 300, 300, 0, 0])
 			speed = random.random()*5.0 + 5.0
 			initialDX = speed*math.cos(initialPos[3])
 			initialDY = speed*math.sin(initialPos[3])
-			initialDZ = speed*math.cos(initialPos[4])
+			initialDZ = speed*math.sin(initialPos[4])
 
 			initialOmegaX = random.random()*math.pi/2 - math.pi/4
 			initialOmegaZ = random.random()*math.pi/4 - math.pi/8

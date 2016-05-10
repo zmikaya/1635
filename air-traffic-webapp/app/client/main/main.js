@@ -27,6 +27,10 @@ Template.mainGraphics.onRendered(function() {
 
 Template.mainGraphics.onRendered(function() {
   let template = this;
+  
+  // Set initial aircraft position
+  Meteor.call('setInitialAircraftPos', [300, 300, 300]);
+  
   modules.aircraftControls.createThrottleSlider(template, document);
 
 

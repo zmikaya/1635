@@ -62,6 +62,7 @@ aircraftControls._updatePosition = function(template, aircraft, deltaT) {
   // let distance = speed * deltaT;
   // for (let i=0; i<aircraft.length; i++) {
   //   aircraft[i].position.z += distance;
+  //   console.log(aircraft[i].position.z);
   // }
   let aircraft_pos = Aircraft.findOne({'name': 'b2'});
   let x_pos = aircraft_pos['x-pos'];
@@ -69,9 +70,10 @@ aircraftControls._updatePosition = function(template, aircraft, deltaT) {
   let z_pos = aircraft_pos['z-pos'];
   
   for (let i=0; i<aircraft.length; i++) {
-    aircraft[i].position.x = x_pos + 300;
-    aircraft[i].position.y = y_pos + 300;
-    aircraft[i].position.z = z_pos + 300;
+    aircraft[i].position.x = 300;
+    aircraft[i].position.y = 300;
+    aircraft[i].position.z = x_pos;
+    console.log(Math.abs(x_pos) + 300);
   }
   
 };
