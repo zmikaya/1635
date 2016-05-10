@@ -176,9 +176,8 @@ class Airplane(threading.Thread):
 		self.__dz = speed*math.sin(self.__phi)
 
 		# change dtheta and dphi to supplied rotational velocities
-		self.__dtheta = dtheta
-		self.__dphi = dphi
-		
+		self.__theta = dtheta
+		self.__phi = dphi
 		# self.clampVelocity()
 		self.ap_lock.release() # end critical region
 
@@ -231,7 +230,7 @@ class Airplane(threading.Thread):
 		self.clampVelocity()
 
 		self.ap_lock.release() # end critical region
-
+		
 	def advanceNoiseFree(self,sec,msec):
 		t = sec + msec*1e-3;
 
@@ -246,42 +245,47 @@ class Airplane(threading.Thread):
 		s = math.sqrt(self.__dx*self.__dx + self.__dy*self.__dy + self.__dz*self.__dz)
 		
 		if (abs(self.__dtheta) > 1e-3): # The following model is not well defined when dtheta = 0
-			# # Circle center and radius
-			# r = s/self.__dtheta
+			# Circle center and radius
+			r = s/self.__dtheta
+			# print 'theta: {0}; phi {1}'.format(self.__theta, self.__phi)
+			xc = self.__x - r * math.sin(self.__theta)
+			yc = self.__y + r * math.cos(self.__theta)
+			zc = self.__z + r * math.sin(self.__phi)
 
-			# xc = self.__x - r * math.sin(self.__theta)
-			# yc = self.__y + r * math.cos(self.__theta)
-			# zc = self.__z + r * math.cos(self.__phi)
+			self.__theta = self.__theta + self.__dtheta*t
 
-			# self.__theta = self.__theta + self.__dtheta*t
+			rtheta = ((self.__theta-math.pi) % (2*math.pi))
+			rphi = ((self.__phi - math.pi/2) % (math.pi))
+			if (rtheta < 0): # Note that % in java is remainder, not modulo.
+				rtheta += 2*math.pi
+			if (rphi < 0):
+				rphi += math.pi
 
-			# rtheta = ((self.__theta-math.pi) % (2*math.pi))
-			# rphi = ((self.__phi - math.pi/2) % (math.pi))
-			# if (rtheta < 0): # Note that % in java is remainder, not modulo.
-			# 	rtheta += 2*math.pi
-			# if (rphi < 0):
-			# 	rphi += math.pi
+			self.__theta = rtheta - math.pi;
+			self.__phi = rphi - math.pi;
 
-			# self.__theta = rtheta - math.pi;
-			# self.__phi = rphi - math.pi;
-
-			# # Update Values
-			# self.__x = xc + r * math.sin(self.__theta)
-			# self.__y = yc - r * math.cos(self.__theta)
-			# self.__z = zc - r * math.cos(self.__phi)
-			# self.__dx = s * math.cos(self.__theta)
-			# self.__dy = s * math.sin(self.__theta)
+			# Update Values
+			self.__x = xc + r * math.sin(self.__theta)
+			self.__y = yc - r * math.cos(self.__theta)
+			self.__z = zc - r * math.cos(self.__phi)
+			self.__dx = s * math.cos(self.__theta)
+			self.__dy = s * math.sin(self.__theta)
+			self.__dz = s * math.sin(self.__phi)
 			# print self.__dy
+			# self.__x = self.__x + self.__dx*t
+			# self.__y = self.__y + self.__dy*t
+			# self.__z = self.__z + self.__dz*t
+			
+		else:	# Straight motion. No change in theta.
+			# print self.__dy
+			print 'theta: {0}; phi {1}'.format(self.__theta, self.__phi)
+			self.__dx = s * math.cos(self.__theta)
+			self.__dy = s * math.sin(self.__theta)
+			self.__dz = s * math.sin(self.__phi)
 			self.__x = self.__x + self.__dx*t
 			self.__y = self.__y + self.__dy*t
 			self.__z = self.__z + self.__dz*t
 			
-		else:	# Straight motion. No change in theta.
-			# print self.__dy
-			self.__x = self.__x + self.__dx*t
-			self.__y = self.__y + self.__dy*t
-			self.__z = self.__z + self.__dz*t
-		
 		# self.clampPosition()
 		# self.clampVelocity()
 
@@ -294,7 +298,7 @@ class Airplane(threading.Thread):
 		currentSec = 0
 		currentMSec = 0
 
-		while(currentSec < 100):
+		while(currentSec < self.__sim.duration):
 		# 	if not self.__sim.getDisplayClient().isConnected():
 		# 		break
 

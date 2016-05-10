@@ -116,7 +116,7 @@ Template.mainGraphics.onRendered(function() {
         targetObject: obj,
         cameraPosition: new THREE.Vector3(0, 10, 50),
         fixed: false,
-        stiffness: 0.1,
+        stiffness: 0.05,
         cameraRotation: new THREE.Euler(0, Math.PI, 0),
         matchRotation: true
       });

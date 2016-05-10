@@ -56,6 +56,7 @@ aircraftControls.rollLeft = function(template) {
   let rollStateVal = rollState.get();
   if (rollStateVal > -Math.PI/2) {
     rollState.set(rollStateVal - (Math.PI/2)/5);
+    Meteor.call('setRoll', rollState.get());
   }
 };
 
@@ -65,6 +66,7 @@ aircraftControls.rollRight = function(template) {
   let rollStateVal = rollState.get();
   if (rollStateVal < Math.PI/2) {
     rollState.set(rollStateVal + (Math.PI/2)/5);
+    Meteor.call('setRoll', rollState.get());
   }
 };
 
@@ -74,6 +76,7 @@ aircraftControls.pitchUp = function(template) {
   let pitchStateVal = pitchState.get();
   if (pitchStateVal < Math.PI/2) {
     pitchState.set(pitchStateVal + (Math.PI/2)/5);
+    Meteor.call('setPitch', pitchState.get());
   }
 };
 
@@ -83,6 +86,7 @@ aircraftControls.pitchDown = function(template) {
   let pitchStateVal = pitchState.get();
   if (pitchStateVal > -Math.PI/2) {
     pitchState.set(pitchStateVal - (Math.PI/2)/5);
+    Meteor.call('setPitch', pitchState.get());
   }
 };
 
@@ -112,9 +116,9 @@ aircraftControls._updatePosition = function(template, aircraft, deltaT) {
   
   for (let i=0; i<aircraft.length; i++) {
     let obj = aircraft[i];
-    obj.position.x = x_pos;
+    obj.position.x = z_pos;
     obj.position.y = y_pos;
-    obj.position.z = z_pos;
+    obj.position.z = x_pos;
     obj.rotation.x = pitchStateVal;
     obj.rotation.z = rollStateVal;
     // console.log(Math.abs(x_pos) + 300);

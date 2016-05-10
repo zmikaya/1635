@@ -39,6 +39,8 @@ class Simulator(threading.Thread):
 		self.apY = []
 		self.apZ = []
 		self.apTheta = []
+		
+		self.duration = 50
 
 		# NOTE: the '_' prefix is python convention, and does not 
 		# affect the behavior of the targeted member 
@@ -97,10 +99,17 @@ class Simulator(threading.Thread):
 		self.numPlaneToUpdate += 1
 		self.simulator_lock.release() # end critical region
 		
-	def stream_data(self, aircraft_name, data):
+	def set_db_coords(self, aircraft_name, coords):
 		self.aircraft_collection.update_one(
 			{'name': aircraft_name},
-			{'$set': {'x-pos': data[0], 'y-pos': data[1], 'z-pos': data[2]}},
+			{'$set': {'x-pos': coords[0], 'y-pos': coords[1], 'z-pos': coords[2]}},
+			upsert=True
+		)
+		
+	def set_db_angles(self, aircraft_name, angles):
+		self.aircraft_collection.update_one(
+			{'name': aircraft_name},
+			{'$set': {'pitch': angles[0], 'roll': angles[1]}},
 			upsert=True
 		)
 
@@ -112,7 +121,8 @@ class Simulator(threading.Thread):
 		# real-time implementation in a later assignment, we're actually going to
 		# need to measure the elapsed time. 
 		
-		self.stream_data('b2', [300, 300, 300])
+		self.set_db_coords('b2', [300, 300, 300])
+		self.set_db_angles('b2', [0, 0])
 		
 		lastUpdateSec = self.__currentSec
 		lastUpdateMSec = self.__currentMSec
@@ -123,7 +133,7 @@ class Simulator(threading.Thread):
 
 		print "Simulator thread started"
 
-		while (self.__currentSec < 100):
+		while (self.__currentSec < self.duration):
 			#[NOT NECESSARY] Implemented for convenience of having the VC and 
 			# Sim threads ends when quit is called on the DisplayServer
 		# 	if not self.__displayClient.isConnected():
@@ -156,7 +166,7 @@ class Simulator(threading.Thread):
 			# if self._stream:
 			  #self._zerorpc_client.sendPos(str(self.apX[-1]))
 			  #self._zerorpc_client.sendPos('test')
-			self.stream_data('b2', [self.apX[-1], self.apY[-1], self.apZ[-1]])
+			self.set_db_coords('b2', [self.apX[-1], self.apY[-1], self.apZ[-1]])
 			print 'x: {0}; y: {1}; z: {2}'.format(self.apX[-1], self.apY[-1], self.apZ[-1])
 
 			# send AP positions to the DisplayServer using the DisplayClient
@@ -285,8 +295,8 @@ if __name__ == '__main__':
 			initialDY = speed*math.sin(initialPos[3])
 			initialDZ = speed*math.sin(initialPos[4])
 
-			initialOmegaX = random.random()*math.pi/2 - math.pi/4
-			initialOmegaZ = random.random()*math.pi/4 - math.pi/8
+			initialOmegaX = 0
+			initialOmegaZ = 0
 
 			apf = Airplane(initialPos, initialDX, initialDY, initialDZ, initialOmegaX, initialOmegaZ)
 			pc = None # null vehicle controller

@@ -30,9 +30,22 @@ class UserController(PlaneController):
 		aircraft_collection = self.__sim.aircraft_collection
 		throttle = aircraft_collection.find_one({'name': 'b2'})['throttle']
 		return throttle
+		
+	def getPitch(self):
+		aircraft_collection = self.__sim.aircraft_collection
+		pitch = aircraft_collection.find_one({'name': 'b2'})['pitch']
+		return -pitch
+		
+	def getRoll(self):
+		aircraft_collection = self.__sim.aircraft_collection
+		roll = aircraft_collection.find_one({'name': 'b2'})['roll']
+		return -roll
 
 	def getControl(self,sec,msec):
 		throttle = self.getThrottle()
+		pitch = self.getPitch()
+		roll = self.getRoll()
+		# print pitch
 		# avoid walls if we're too close
 		# a = PlaneController.avoidWalls(self.__ap.getPosition())
 
@@ -40,8 +53,8 @@ class UserController(PlaneController):
 		# 	return a
 		# otherwise generate a random control
 		speed = throttle*20
-		omegaX = 0
-		omegaZ = 0
+		omegaX = roll
+		omegaZ = pitch
 		c = Control(speed, omegaX, omegaZ)
 
 		return c
