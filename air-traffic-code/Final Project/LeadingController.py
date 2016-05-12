@@ -35,10 +35,10 @@ class LeadingController(PlaneController):
 	# Returns a control negating the output for the FollowingControler. Added
     # special controls when the Airplane is close to the walls.
 	def getControl(self,sec,msec):
-                if type(sec) != float or type(sec) != int
-                        raise IllegalArgumentException("Wrong object type")
-                if type(msec) != float or type(msec) != int
-                        raise IllegalArgumentException("Wrong object type")
+        if type(sec) != float or type(sec) != int:
+            raise IllegalArgumentException("Wrong object type")
+        if type(msec) != float or type(msec) != int:
+            raise IllegalArgumentException("Wrong object type")
 		leaderPos = self.__leaderAP.getPosition()
 		closestAP = self.getClosestPlane()
 
