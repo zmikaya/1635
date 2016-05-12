@@ -58,6 +58,8 @@ class PlaneController(threading.Thread):
 		self.__lastCheckedMSec = 0
 
 	def setNumSides(self,numSides):
+                if (numSides < 3) and (numSides > 10):
+                        raise IllegalArgumentException("Number numSides is too small or large - must be in between 3 and 10, inclusive")
 		if (numSides>=3) and (numSides<=10):
 			self.__numSides = numSides
 		return self.__numSides
@@ -180,6 +182,10 @@ class PlaneController(threading.Thread):
 		self.__controllerInitialized = True
 
 	def getControl(self,sec,msec):
+                if type(sec) != float or type(sec) != int
+                        raise IllegalArgumentException("Wrong object type")
+                if type(msec) != float or type(msec) != int
+                        raise IllegalArgumentException("Wrong object type")
 		controlTime = sec+msec*1e-3
 		nextControl = None
 

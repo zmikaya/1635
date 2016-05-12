@@ -39,8 +39,6 @@ class Simulator(threading.Thread):
 		self.apY = []
 		self.apZ = []
 		self.apTheta = []
-		
-		self.duration = 50
 
 		# NOTE: the '_' prefix is python convention, and does not 
 		# affect the behavior of the targeted member 
@@ -85,6 +83,8 @@ class Simulator(threading.Thread):
 		self.simulator_lock.release() # end critical region
 
 	def addAirplane(self, ap):
+                if type(ap) != type(Airplane([0,0,0,0,0],0,0,0,0,0))
+                        raise IllegalArgumentException("Wrong object type")
 		self.simulator_lock.acquire() # start critical region
 		self._apList.append(ap)
 		print "---------Adding Ground Plane-----------\n"
@@ -99,17 +99,14 @@ class Simulator(threading.Thread):
 		self.numPlaneToUpdate += 1
 		self.simulator_lock.release() # end critical region
 		
-	def set_db_coords(self, aircraft_name, coords):
+	def stream_data(self, aircraft_name, data):
+                if type(aircraft_name) != str
+                        raise IllegalArgumentException("String type required for 1st parameter")
+                if type(data) != float or list
+                        raise IllegalArgumentException("List type required for 2nd parameter")
 		self.aircraft_collection.update_one(
 			{'name': aircraft_name},
-			{'$set': {'x-pos': coords[0], 'y-pos': coords[1], 'z-pos': coords[2]}},
-			upsert=True
-		)
-		
-	def set_db_angles(self, aircraft_name, angles):
-		self.aircraft_collection.update_one(
-			{'name': aircraft_name},
-			{'$set': {'pitch': angles[0], 'roll': angles[1]}},
+			{'$set': {'x-pos': data[0], 'y-pos': data[1], 'z-pos': data[2]}},
 			upsert=True
 		)
 
@@ -120,10 +117,7 @@ class Simulator(threading.Thread):
 		# call vehicle.updateState() with arguments of 0 and 10, but for a
 		# real-time implementation in a later assignment, we're actually going to
 		# need to measure the elapsed time. 
-		
-		self.set_db_coords('b2', [300, 300, 300])
-		self.set_db_angles('b2', [0, 0])
-		
+
 		lastUpdateSec = self.__currentSec
 		lastUpdateMSec = self.__currentMSec
 
@@ -133,7 +127,7 @@ class Simulator(threading.Thread):
 
 		print "Simulator thread started"
 
-		while (self.__currentSec < self.duration):
+		while (self.__currentSec < 100):
 			#[NOT NECESSARY] Implemented for convenience of having the VC and 
 			# Sim threads ends when quit is called on the DisplayServer
 		# 	if not self.__displayClient.isConnected():
@@ -166,8 +160,8 @@ class Simulator(threading.Thread):
 			# if self._stream:
 			  #self._zerorpc_client.sendPos(str(self.apX[-1]))
 			  #self._zerorpc_client.sendPos('test')
-			self.set_db_coords('b2', [self.apX[-1], self.apY[-1], self.apZ[-1]])
-			print 'x: {0}; y: {1}; z: {2}'.format(self.apX[-1], self.apY[-1], self.apZ[-1])
+			self.stream_data('b2', [self.apX[-1], self.apY[-1], self.apZ[-1]])
+			  #print 'x-vals:', self.apX[-1]
 
 			# send AP positions to the DisplayServer using the DisplayClient
 		# 	if self.__displayClient:
@@ -289,14 +283,17 @@ if __name__ == '__main__':
 		fc = None # First controller
 
 		for i in range(numPlanes):
-			initialPos = ([300, 300, 300, 0, 0])
+			initialPos = ([random.random()*100,random.random()*100,
+						random.random()*100,
+						random.random()*2.0*math.pi - math.pi,
+						random.random()*math.pi/2 - math.pi/2])
 			speed = random.random()*5.0 + 5.0
 			initialDX = speed*math.cos(initialPos[3])
 			initialDY = speed*math.sin(initialPos[3])
-			initialDZ = speed*math.sin(initialPos[4])
+			initialDZ = speed*math.cos(initialPos[4])
 
-			initialOmegaX = 0
-			initialOmegaZ = 0
+			initialOmegaX = random.random()*math.pi/2 - math.pi/4
+			initialOmegaZ = random.random()*math.pi/4 - math.pi/8
 
 			apf = Airplane(initialPos, initialDX, initialDY, initialDZ, initialOmegaX, initialOmegaZ)
 			pc = None # null vehicle controller

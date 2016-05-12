@@ -22,6 +22,8 @@ class LeadingController(PlaneController):
 	# Adds a Airplane to the list of chasers considered by this
     # groundPlane.
 	def addFollower(self,ap):
+                if type(ap) != type(Airplane([0,0,0,0,0],0,0,0,0,0))
+                        raise IllegalArgumentException("Wrong object type")
 		self.__apList.append(ap)
 
 	# Return a Airplane at index
@@ -33,6 +35,11 @@ class LeadingController(PlaneController):
 	# Returns a control negating the output for the FollowingControler. Added
     # special controls when the Airplane is close to the walls.
 	def getControl(self,sec,msec):
+                if type(sec) != float or type(sec) != int
+                        raise IllegalArgumentException("Wrong object type")
+                if type(msec) != float or type(msec) != int
+                        raise IllegalArgumentException("Wrong object type")
+		leaderPos = self.__leaderAP.getPosition()
 		closestAP = self.getClosestPlane()
 
 		# if no closest vehicle return None

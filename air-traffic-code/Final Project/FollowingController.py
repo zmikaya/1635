@@ -20,6 +20,10 @@ class FollowingController(PlaneController):
 		self.__leaderAP = targetPlane
 
 	def getControl(self,sec,msec):
+                if type(sec) != float or type(sec) != int
+                        raise IllegalArgumentException("Wrong object type")
+                if type(msec) != float or type(msec) != int
+                        raise IllegalArgumentException("Wrong object type")
 		leaderPos = self.__leaderAP.getPosition()
 		myPos = self.__ap.getPosition()
 
