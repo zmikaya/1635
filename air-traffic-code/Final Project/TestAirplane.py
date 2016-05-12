@@ -15,11 +15,13 @@ class TestAirplane(unittest.TestCase):
 	# Contructs valid AP to ensusre that no exceptions are thrown;
 	# also confirms that the AP arguments are properly set
 	def testConstructor(self):
-		pose = [1,2,0]
+		pose = [1,2,0,0,0]
 		dx = 5
 		dy = 0
-		dt = 0
-		ap = Airplane(pose, dx, dy, dt)
+		dz = 0
+		dtheta = 0
+		dphi = 0
+		ap = Airplane(pose, dx, dy, dz, dtheta, dphi)
 		sim = Simulator()
 		ap.addSimulator(sim)
 		
@@ -31,54 +33,60 @@ class TestAirplane(unittest.TestCase):
 		self.assertAlmostEqual(pose[0], newPose[0])
 		self.assertAlmostEqual(pose[1], newPose[1])
 		self.assertAlmostEqual(pose[2], newPose[2])
+		self.assertAlmostEqual(pose[3], newPose[3])
+		self.assertAlmostEqual(pose[4], newPose[4])
 
 		newVel = ap.getVelocity()
 		self.assertAlmostEqual(dx, newVel[0])
 		self.assertAlmostEqual(dy, newVel[1])
-		self.assertAlmostEqual(dt, newVel[2])
+		self.assertAlmostEqual(dz, newVel[2])
+		self.assertAlmostEqual(dtheta, newVel[3])
+		self.assertAlmostEqual(dphi, newVel[4])
 
 	def testTooManyArgumentsConstructor(self):
 		with self.assertRaises(IllegalArgumentException):
-			pose = [0,0,0,0]
-			ap = Airplane(pose, 0, 0, 0)
+			pose = [0,0,0,0,0]
+			ap = Airplane(pose, 0, 0, 0, 0, 0, 0)
 
 	def testTooFewArgumentsConstructor(self):
 		with self.assertRaises(IllegalArgumentException):
 			pose = [0,0]
-			ap = Airplane(pose, 0, 0, 0)
+			ap = Airplane(pose, 0, 0, 0, 0, 0)
 
 	def testNonArrayPoseArgument(self):
 		with self.assertRaises(IllegalArgumentException):
 			pose = 'not an array'
-			ap = Airplane(pose, 0, 0, 0)
+			ap = Airplane(pose, 0, 0, 0, 0, 0)
 
 	def testTooManyArgumentsSetPosition(self):
 		with self.assertRaises(IllegalArgumentException):
-			ap = Airplane([0,0,0], 5, 0, 0)
-			ap.setPosition([0,0,0,0])
+			ap = Airplane([0,0,0,0,0], 5, 0, 0)
+			ap.setPosition([0,0,0,0,0,0,0])
 
 	def testTooFewArgumentsSetPosition(self):
 		with self.assertRaises(IllegalArgumentException):
-			ap = Airplane([0,0,0], 5, 0, 0)
+			ap = Airplane([0,0,0,0,0], 5, 0, 0)
 			ap.setPosition([0,0])
 
 	def testTooManyArgumentsSetVelocity(self):
 		with self.assertRaises(IllegalArgumentException):
-			ap = Airplane([0,0,0], 5, 0, 0)
-			ap.setVelocity([0,0,0,0])
+			ap = Airplane([0,0,0,0,0], 5, 0, 0)
+			ap.setVelocity([0,0,0,0,0,0,0])
 
 	def testTooFewArgumentsSetVelocity(self):
 		with self.assertRaises(IllegalArgumentException):
-			ap = Airplane([0,0,0], 5, 0, 0)
+			ap = Airplane([0,0,0,0,0], 5, 0, 0, 0 ,0)
 			ap.setVelocity([0,0])
 
 	# Test get/set Position/Velocity at all legal position bounds
 	def testGetSetPosVelValid(self):
-		pose = [1,2,0]
+		pose = [1,2,0,0,0]
 		dx = 5
 		dy = 0
-		dt = 0
-		ap = Airplane(pose, dx, dy, dt)
+		dz = 0
+		dtheta = 0
+		dphi = 0
+		ap = Airplane(pose, dx, dy, dz, dtheta, dphi)
 		sim = Simulator()
 		ap.addSimulator(sim)		
 		
@@ -118,12 +126,12 @@ class TestAirplane(unittest.TestCase):
 		self.assertAlmostEqual(pose[1], newPose[1])
 
 		# theta near-boundary conditions
-		pose[2] = -math.pi
+		pose[3] = -math.pi
 		ap.setPosition(pose)
 		newPose = ap.getPosition()
 		self.assertAlmostEqual(pose[2], newPose[2])
 
-		pose[2] = math.radians(179)
+		pose[3] = math.radians(179)
 		ap.setPosition(pose)
 		newPose = ap.getPosition()
 		self.assertAlmostEqual(pose[2], newPose[2])
@@ -169,11 +177,13 @@ class TestAirplane(unittest.TestCase):
 		self.assertAlmostEqual(vel[2], newVel[2])	
 
 	def testGetSetPosVelInvalid(self):
-		pose = [1,2,0]
+		pose = [1,2,0,0,0]
 		dx = 5
 		dy = 0
-		dt = 0
-		ap = Airplane(pose, dx, dy, dt)
+		dz = 0
+		dtheta = 0
+		dphi = 0
+		ap = Airplane(pose, dx, dy, dz, dtheta, dphi)
 		sim = Simulator()
 		ap.addSimulator(sim)
 
@@ -184,22 +194,26 @@ class TestAirplane(unittest.TestCase):
 		# lower bounds
 		pose[0] = -1
 		pose[1] = -1
-		pose[2] = -2*math.pi
+		pose[2] = -1
+		pose[3] = -2*math.pi
+		pose[4] = -mathh.pi
 		ap.setPosition(pose)
 		newPose = ap.getPosition()
 		self.assertAlmostEqual(0, newPose[0])
 		self.assertAlmostEqual(0, newPose[1])
-		self.assertAlmostEqual(-math.pi, newPose[2])
+		self.assertAlmostEqual(0, newPose[2])
 
 		# upper bounds
 		pose[0] = 101
 		pose[1] = 101
-		pose[2] = math.pi
+		pose[2] = 101
+		pose[3] = 2*math.pi
+		pose[4] = math.pi
 		ap.setPosition(pose)
 		newPose = ap.getPosition()
 		self.assertAlmostEqual(100, newPose[0])
 		self.assertAlmostEqual(100, newPose[1])
-		self.assertAlmostEqual(-math.pi, newPose[2])
+		self.assertAlmostEqual(100, newPose[2])
 
 		# Test getVelocity and setVelocity at illegal bounds. Since all bounds
 		# violations get clamped to legal limits, we can test all three
@@ -210,7 +224,9 @@ class TestAirplane(unittest.TestCase):
 		# lower bounds
 		vel[0] = 0
 		vel[1] = 1
-		vel[2] = -math.pi
+		vel[2] = 1
+		vel[3] = -math.pi
+		vel[4] = -3
 		ap.setVelocity(vel)
 		newVel = ap.getVelocity()
 		self.assertAlmostEqual(0, newVel[0])
@@ -220,7 +236,9 @@ class TestAirplane(unittest.TestCase):
 		# upper bounds
 		vel[0] = 0
 		vel[1] = 20
-		vel[2] = math.pi
+		vel[2] = 0
+		vel[3] = math.pi
+		vel[4] = 2*math.pi
 		ap.setVelocity(vel)
 		newVel = ap.getVelocity()
 		self.assertAlmostEqual(0, newVel[0])
@@ -233,46 +251,54 @@ class TestAirplane(unittest.TestCase):
 	# that need to be added. 
 
 	def testControlVehicle(self):
-		pose = [0,0,0]
+		pose = [1,2,0,0,0]
 		dx = 5
 		dy = 0
-		dt = 0
-		ap = Airplane(pose, dx, dy, dt)
+		dz = 0
+		dtheta = 0
+		dphi = 0
+		ap = Airplane(pose, dx, dy, dz, dtheta, dphi)
 		sim = Simulator()
 		ap.addSimulator(sim)
 
 		# Acceleration in x
 
-		c = Control(10,0)
+		c = Control(10,0,0)
 		ap.controlVehicle(c)
 
 		newVel = ap.getVelocity()
 		self.assertAlmostEqual(10, newVel[0])
 		self.assertAlmostEqual(0, newVel[1])
 		self.assertAlmostEqual(0, newVel[2])
+		self.assertAlmostEqual(0, newVel[3])
+		self.assertAlmostEqual(0, newVel[4])
 
 		# Acceleration in y
 
 		pose = [0,0,math.pi/2]
 		ap.setPosition(pose)
-		vel = [10,0,0]
+		vel = [10,0,0,0,0]
 		ap.setVelocity(vel)
 
-		c = Control(10,0)
+		c = Control(10,0,0)
 		ap.controlVehicle(c)
 		
 		newVel = ap.getVelocity()
 		self.assertAlmostEqual(0, newVel[0])
 		self.assertAlmostEqual(10, newVel[1])
 		self.assertAlmostEqual(0, newVel[2])
+		self.assertAlmostEqual(0, newVel[3])
+		self.assertAlmostEqual(0, newVel[4])
 
 		# Acceleration at PI/4 from 5m/s to 10 m/s
 
 		vel[0] = math.sqrt(12.5)
 		vel[1] = math.sqrt(12.5)
-		vel[2] = math.pi/4
+		vel[2] = 0
+		vel[3] = math.pi/4
+		vel[4] = 0
 		ap.setVelocity(vel)
-		c = Control(10,0)
+		c = Control(10,0,0)
 		ap.controlVehicle(c)
 
 		newVel = ap.getVelocity()
@@ -282,18 +308,19 @@ class TestAirplane(unittest.TestCase):
 
 		vel[2] = 0
 		ap.setVelocity(vel)
-		c = Control(5, math.pi/8)
+		c = Control(5, math.pi/8, 0)
 		ap.controlVehicle(c)
 
 		newVel = ap.getVelocity()
 		self.assertAlmostEqual(math.pi/8, newVel[2])
 
 	def testAdvanceNoiseFree(self):
-		pose = [0,0,0]
+		pose = [1,2,0,0,0]
 		dx = 5
 		dy = 0
-		dt = 0
-		ap = Airplane(pose, dx, dy, dt)
+		dz = 0
+		dtheta = 0
+		dphi = 0
 		sim = Simulator()
 		ap.addSimulator(sim)
 
@@ -308,9 +335,9 @@ class TestAirplane(unittest.TestCase):
 
 		# Straight-line motion along y
 		
-		pose = [0,0,0]
+		pose = [0,0,0,0,0]
 		ap.setPosition(pose)
-		vel = [0,5,0]
+		vel = [0,5,0,0,0]
 		ap.setVelocity(vel)
 
 		ap.advanceNoiseFree(1, 0)
@@ -322,7 +349,7 @@ class TestAirplane(unittest.TestCase):
 
 		# Straight-line motion along PI/4
 
-		pose = [0,0,0]
+		pose = [0,0,0,0,0]
 		ap.setPosition(pose)
 
 		# Set vehicle moving at 5 m/s along PI/4
@@ -346,7 +373,7 @@ class TestAirplane(unittest.TestCase):
 
 		# Rotational Motion
 
-		pose = [0,0,0]
+		pose = [0,0,0,0,0]
 		ap.setPosition(pose)
 
 		vel[0] = math.sqrt(5)
@@ -364,11 +391,12 @@ class TestAirplane(unittest.TestCase):
 	# allowed in the assert statements 
 
 	def testAdvance(self):
-		pose = [0,0,0]
+		pose = [1,2,0,0,0]
 		dx = 5
 		dy = 0
-		dt = 0
-		ap = Airplane(pose, dx, dy, dt)
+		dz = 0
+		dtheta = 0
+		dphi = 0
 		sim = Simulator()
 		ap.addSimulator(sim)
 
@@ -383,9 +411,9 @@ class TestAirplane(unittest.TestCase):
 
 		# Straight-line motion along y
 		
-		pose = [0,0,0]
+		pose = [0,0,0,0,0]
 		ap.setPosition(pose)
-		vel = [0,5,0]
+		vel = [0,5,0,0,0]
 		ap.setVelocity(vel)
 
 		ap.advance(1, 0)
@@ -397,7 +425,7 @@ class TestAirplane(unittest.TestCase):
 
 		# Straight-line motion along PI/4
 
-		pose = [0,0,0]
+		pose = [0,0,0,0,0]
 		ap.setPosition(pose)
 
 		# Set vehicle moving at 5 m/s along PI/4
@@ -405,6 +433,8 @@ class TestAirplane(unittest.TestCase):
 		vel[0] = math.sqrt(12.5)
 		vel[1] = math.sqrt(12.5)
 		vel[2] = 0
+		vel[3] = 0
+		vel[4] = 0
 		ap.setVelocity(vel)
 
 		newVel = ap.getVelocity()
@@ -421,12 +451,14 @@ class TestAirplane(unittest.TestCase):
 
 		# Rotational Motion
 
-		pose = [0,0,0]
+		pose = [0,0,0,0,0]
 		ap.setPosition(pose)
 
 		vel[0] = math.sqrt(5)
 		vel[1] = math.sqrt(5)
-		vel[2] = math.pi/8
+		vel[2] = 0
+		vel[3] = math.pi/8
+		vel[4] = 0
 
 		ap.setVelocity(vel)
 
@@ -437,21 +469,21 @@ class TestAirplane(unittest.TestCase):
 
 	# Tests if the returned angle is in the range [-Pi, Pi)
 
-	def testNormalizeAngle(self):
-		# Within range boundaries
-		self.assertAlmostEqual(0, Airplane.normalizeAngle(0))
+	# def testNormalizeAngle(self):
+	# 	# Within range boundaries
+	# 	self.assertAlmostEqual(0, Airplane.normalizeAngle(0))
 
-		# Near upper boundary
-		self.assertAlmostEqual(math.radians(179), Airplane.normalizeAngle(math.radians(179)))
+	# 	# Near upper boundary
+	# 	self.assertAlmostEqual(math.radians(179), Airplane.normalizeAngle(math.radians(179)))
 
-		# Near lower boundary
-		self.assertAlmostEqual(-math.pi, Airplane.normalizeAngle(-math.pi))
+	# 	# Near lower boundary
+	# 	self.assertAlmostEqual(-math.pi, Airplane.normalizeAngle(-math.pi))
 
-		# Above upper boundary
-		self.assertAlmostEqual(-math.pi/2, Airplane.normalizeAngle(3.5*math.pi))
+	# 	# Above upper boundary
+	# 	self.assertAlmostEqual(-math.pi/2, Airplane.normalizeAngle(3.5*math.pi))
 
-		# Below lower boundary
-		self.assertAlmostEqual(math.pi/2, Airplane.normalizeAngle(-3.5*math.pi))
+	# 	# Below lower boundary
+	# 	self.assertAlmostEqual(math.pi/2, Airplane.normalizeAngle(-3.5*math.pi))
 
 
 

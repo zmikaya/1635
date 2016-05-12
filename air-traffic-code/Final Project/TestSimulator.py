@@ -52,9 +52,9 @@ class TestSimulator(unittest.TestCase):
 
 	def testAddVehicle(self):
 		sim = Simulator()
-		pose = [0,0,0]
-		ap1 = Airplane(pose,1,0,1)
-		ap2 = Airplane(pose,0,1,1)
+		pose = [0,0,0,0,0]
+		ap1 = Airplane(pose,1,0,1,0,1)
+		ap2 = Airplane(pose,0,1,1,1,0)
 		ap1.addSimulator(sim)
 		ap2.addSimulator(sim)
 		sim.addAirplane(ap1)
@@ -62,6 +62,10 @@ class TestSimulator(unittest.TestCase):
 
 		self.assertEqual(ap1,sim._apList[0])
 		self.assertEqual(ap2,sim._apList[1])
+		
+#	def testStreamData(self):
+#		sim = Simulator()
+		
 
 
 # main method which executes unit tests when TestSimulator.py is run directly

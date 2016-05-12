@@ -83,8 +83,8 @@ class Simulator(threading.Thread):
 		self.simulator_lock.release() # end critical region
 
 	def addAirplane(self, ap):
-                if type(ap) != type(Airplane([0,0,0,0,0],0,0,0,0,0))
-                        raise IllegalArgumentException("Wrong object type")
+        if type(ap) != type(Airplane([0,0,0,0,0],0,0,0,0,0)):
+            raise IllegalArgumentException("Wrong object type")
 		self.simulator_lock.acquire() # start critical region
 		self._apList.append(ap)
 		print "---------Adding Ground Plane-----------\n"
@@ -100,10 +100,10 @@ class Simulator(threading.Thread):
 		self.simulator_lock.release() # end critical region
 		
 	def stream_data(self, aircraft_name, data):
-                if type(aircraft_name) != str
-                        raise IllegalArgumentException("String type required for 1st parameter")
-                if type(data) != float or list
-                        raise IllegalArgumentException("List type required for 2nd parameter")
+        if type(aircraft_name) != str:
+            raise IllegalArgumentException("String type required for 1st parameter")
+        if type(data) != list: 
+            raise IllegalArgumentException("List type required for 2nd parameter")s
 		self.aircraft_collection.update_one(
 			{'name': aircraft_name},
 			{'$set': {'x-pos': data[0], 'y-pos': data[1], 'z-pos': data[2]}},
