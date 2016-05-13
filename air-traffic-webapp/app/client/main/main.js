@@ -16,8 +16,22 @@ import './main.html';
 
 /* Initialize state variables */
 Template.mainGraphics.onCreated(function() {
+	let template = this;
+	
 	this.rollState = new ReactiveVar(0);
 	this.pitchState = new ReactiveVar(0);
+	this.boxObjects = new ReactiveVar([]);
+	this.aircraftSelection = new ReactiveVar('c130');
+	this.playerID = new ReactiveVar(null);
+	
+	modules.session.addPlayer(template);
+	
+	// Get rid of the aircraft from the db when the window is closed
+	$(window).bind('beforeunload', function() {
+      modules.session.closingWindow(template);
+  });
+  
+
 });
 
 /* Handle keyboard, mouse, or other peripheral user interactions */
@@ -33,11 +47,21 @@ Template.mainGraphics.onRendered(function() {
   });
 });
 
+Template.mainGraphics.events({
+	'click #tie': function(event, template) {
+		template.aircraftSelection.set('tie');
+	},
+	
+	'click #c130': function(event, template) {
+		template.aircraftSelection.set('c130');
+	}
+});
+
 Template.mainGraphics.onRendered(function() {
   let template = this;
   
   // Set initial aircraft position
-  Meteor.call('setInitialAircraftPos', [300, 300, 300]);
+  // Meteor.call('setInitialAircraftPos', [300, 300, 300]);
   
   modules.aircraftControls.createThrottleSlider(template, document);
 
@@ -63,7 +87,6 @@ Template.mainGraphics.onRendered(function() {
 	var aircraft = [];
 
 	init();
-	animate();
 
 	function init() {
 
@@ -101,12 +124,31 @@ Template.mainGraphics.onRendered(function() {
 		
 		// Load aircraft
 		var loader = new THREE.ObjectLoader();
-		loader.load('./threejs/objects/us-c-130-hercules-airplane-threejs/us-c-130-hercules-airplane.json', function(obj) {
+		let objSource = './threejs/objects/us-c-130-hercules-airplane-threejs/us-c-130-hercules-airplane.json';
+		let objName = 'c130';
+		
+		// let objSource = './threejs/objects/star-wars-vader-tie-fighter.json';
+		// let objName = 'tie';
+		loader.load(objSource, function(obj) {
+			obj.name = objName;
+			if (objName == 'tie') {
+				obj.scale.set(6, 6, 6);
+				let audio = document.createElement('audio');
+				let source = document.createElement('source');
+				source.src = './threejs/audio/tie-sound.mp3';
+				audio.appendChild(source);
+				audio.play();
+			}
 		  scene.add(obj);
 		  obj.position.set(300, 300, 300);
 		  aircraft.push(obj);
-		  // obj.rotateOnAxis(new THREE.Vector3(1, 0, 0), 3*Math.PI/2);
 		  setCameraTarget(obj, 'aircraft');
+		  // Create boxes
+			let boxes = modules.objects.create(template, [obj.position.x, obj.position.y, obj.position.z]); 
+			for (let i=0; i<boxes.length; i++) {
+				scene.add(boxes[i]);			
+			}
+			animate();
 		});
 		
 		function setCameraTarget(obj, name) {
@@ -161,13 +203,16 @@ Template.mainGraphics.onRendered(function() {
 	}
 
 	function render() {
-    // let x_pos = Aircraft.findOne({'name': 'b2'})['x-pos']
-    // console.log(x_pos);
+    // if (scene.children) {
+    // 	modules.objects.switchAircraft(template, scene, camera, aircraft);
+    // }
     
+
 	  var deltaT = clock.getDelta(),
 	  time = clock.getElapsedTime() * 10;
 
     modules.aircraftControls.dynamicsMain(template, aircraft, deltaT);
+    modules.objects.controlDynamics(template, aircraft[0], deltaT);
 
 		for ( var i = 0, l = geometry.vertices.length; i < l; i ++ ) {
 

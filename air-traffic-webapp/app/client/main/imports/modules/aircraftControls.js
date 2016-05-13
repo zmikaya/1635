@@ -35,7 +35,8 @@ aircraftControls.throttleUp = function(template) {
   let throttleState = Math.round(Number(throttleSlider.noUiSlider.get()));
   if (throttleState < 10) {
     throttleSlider.noUiSlider.set(throttleState + 1);
-    Meteor.call('setThrottle', throttleState + 1);
+    let playerID = template.playerID.get();
+    Meteor.call('setThrottle', playerID, throttleState + 1);
   }
   
 };
@@ -46,7 +47,8 @@ aircraftControls.throttleDown = function(template) {
   let throttleState = Math.round(Number(throttleSlider.noUiSlider.get()));
   if (throttleState > 0) {
     throttleSlider.noUiSlider.set(throttleState - 1);
-    Meteor.call('setThrottle', throttleState - 1);
+    let playerID = template.playerID.get();
+    Meteor.call('setThrottle', playerID, throttleState - 1);
   }
 };
 
@@ -56,7 +58,8 @@ aircraftControls.rollLeft = function(template) {
   let rollStateVal = rollState.get();
   if (rollStateVal > -Math.PI/2) {
     rollState.set(rollStateVal - (Math.PI/2)/5);
-    Meteor.call('setRoll', rollState.get());
+    let playerID = template.playerID.get();
+    Meteor.call('setRoll', playerID, rollState.get());
   }
 };
 
@@ -66,7 +69,8 @@ aircraftControls.rollRight = function(template) {
   let rollStateVal = rollState.get();
   if (rollStateVal < Math.PI/2) {
     rollState.set(rollStateVal + (Math.PI/2)/5);
-    Meteor.call('setRoll', rollState.get());
+    let playerID = template.playerID.get();
+    Meteor.call('setRoll', playerID, rollState.get());
   }
 };
 
@@ -76,7 +80,8 @@ aircraftControls.pitchUp = function(template) {
   let pitchStateVal = pitchState.get();
   if (pitchStateVal < Math.PI/2) {
     pitchState.set(pitchStateVal + (Math.PI/2)/5);
-    Meteor.call('setPitch', pitchState.get());
+    let playerID = template.playerID.get();
+    Meteor.call('setPitch', playerID, pitchState.get());
   }
 };
 
@@ -86,8 +91,28 @@ aircraftControls.pitchDown = function(template) {
   let pitchStateVal = pitchState.get();
   if (pitchStateVal > -Math.PI/2) {
     pitchState.set(pitchStateVal - (Math.PI/2)/5);
-    Meteor.call('setPitch', pitchState.get());
+    let playerID = template.playerID.get();
+    Meteor.call('setPitch', playerID, pitchState.get());
   }
+};
+
+aircraftControls._resetOrientation = function(template) {
+  let playerID = template.playerID.get();
+  template.rollState.set(0);
+  Meteor.call('setRoll', template.rollState.get());
+  template.pitchState.set(0);
+  Meteor.call('setPitch', playerID, template.pitchState.get());
+};
+
+aircraftControls.startSystem = function(template) {
+  this._resetOrientation(template);
+  let playerID = template.playerID.get();
+  Meteor.call('startSystem', playerID);
+};
+
+aircraftControls.stopSystem = function(template) {
+  let playerID = template.playerID.get();
+  Meteor.call('stopSystem', playerID);
 };
 
 /* This is the main function that runs any private functions that involve
@@ -106,7 +131,8 @@ aircraftControls._updatePosition = function(template, aircraft, deltaT) {
   //   aircraft[i].position.z += distance;
   //   console.log(aircraft[i].position.z);
   // }
-  let aircraft_pos = Aircraft.findOne({'name': 'b2'});
+  let playerID = template.playerID.get();
+  let aircraft_pos = Aircraft.findOne({_id: playerID});
   let x_pos = aircraft_pos['x-pos'];
   let y_pos = aircraft_pos['y-pos'];
   let z_pos = aircraft_pos['z-pos'];

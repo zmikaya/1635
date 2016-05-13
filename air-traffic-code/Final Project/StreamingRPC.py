@@ -4,11 +4,13 @@ import zerorpc
 from Simulator import *
 
 class StreamingRPC(object):
+    def __init__(self):
+        self.sim = None
     
-    def startSimulator(self):
-        mainRun(1)
+    def startSimulator(self, val):
+        mainRun()
 
     
-s = zerorpc.Server(StreamingRPC)
+s = zerorpc.Server(StreamingRPC())
 s.bind("tcp://0.0.0.0:4242")
 s.run()
