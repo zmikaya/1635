@@ -35,7 +35,7 @@ class Simulator(threading.Thread):
 		self.apZ = []
 		self.apTheta = []
 		
-		self.duration = 30
+		self.duration = 200
 		self.halt = False
 
 		# NOTE: the '_' prefix is python convention, and does not 
@@ -100,15 +100,13 @@ class Simulator(threading.Thread):
 	def set_db_coords(self, player_id, coords):
 		self.aircraft_collection.update_one(
 			{'_id': player_id},
-			{'$set': {'x-pos': coords[0], 'y-pos': coords[1], 'z-pos': coords[2]}},
-			upsert=True
+			{'$set': {'x-pos': coords[0], 'y-pos': coords[1], 'z-pos': coords[2]}}
 		)
 		
 	def set_db_angles(self, player_id, angles):
 		self.aircraft_collection.update_one(
 			{'_id': player_id},
-			{'$set': {'pitch': angles[0], 'roll': angles[1]}},
-			upsert=True
+			{'$set': {'pitch': angles[0], 'roll': angles[1]}}
 		)
 		
 	def haltSystem(self):
@@ -136,41 +134,42 @@ class Simulator(threading.Thread):
 		print "Simulator thread started"
 
 		while (self.__currentSec < self.duration) and not self.halt:
-			
-			player_ids = sim.get_player_ids()
+			player_ids = self.get_player_ids()
 			numPlanes = len(player_ids)
+			currentPlanes = {key.player_id: val for (val, key) in enumerate(self._apList)}
+			exitedPlanes = set(currentPlanes.keys()) - set(player_ids)
+			newPlanes = set(player_ids) - set(currentPlanes.keys())
+			for plane in exitedPlanes:
+				index = currentPlanes[plane]
+				self._apList[index].terminate = True
+				self._apList.pop(index)
+			for plane in newPlanes:
+				player_id = plane
+				print player_id
+				initialPos = ([300, 300, 300, 0, 0])
+				speed = random.random()*5.0 + 5.0
+				initialDX = speed*math.cos(initialPos[3])
+				initialDY = speed*math.sin(initialPos[3])
+				initialDZ = speed*math.sin(initialPos[4])
 		
-			for i in range(numPlanes):
-				player_id = player_ids[i]
-				if sim._apList[i].player_id in player_id:
-					pass
-				elif sim._apList[i].player_id not in player_id:
-					sim._apList.remove(sim._apList[i])
-					sim._apList[i].terminate = True
-				else:
-					initialPos = ([300, 300, 300, 0, 0])
-					speed = random.random()*5.0 + 5.0
-					initialDX = speed*math.cos(initialPos[3])
-					initialDY = speed*math.sin(initialPos[3])
-					initialDZ = speed*math.sin(initialPos[4])
-			
-					initialOmegaX = 0
-					initialOmegaZ = 0
-			
-					apf = Airplane(initialPos, initialDX, initialDY, initialDZ, initialOmegaX, initialOmegaZ, player_id)
-					pc = UserController(sim, apf)
-			
-					apf.addSimulator(sim)
-					sim.addAirplane(apf)
-					pc.start()
-					apf.start()
+				initialOmegaX = 0
+				initialOmegaZ = 0
+		
+				apf = Airplane(initialPos, initialDX, initialDY, initialDZ, initialOmegaX, initialOmegaZ, player_id)
+				pc = UserController(self, apf)
+				apf.addSimulator(self)
+				self.addAirplane(apf)
+				pc.start()
+				apf.start()
+
+				
 			#[NOT NECESSARY] Implemented for convenience of having the VC and 
 			# Sim threads ends when quit is called on the DisplayServer
-		# 	if not self.__displayClient.isConnected():
-		# 		print 'SIM: display client NOT connected'
-		# 		break
-		
-		if len(sim._apList) > 0:
+			# 	if not self.__displayClient.isConnected():
+			# 		print 'SIM: display client NOT connected'
+			# 		break
+			print 'aplist:', self._apList
+			if len(self._apList) > 0:
 				deltaSec = self.__currentSec - lastUpdateSec
 				deltaMSec = self.__currentMSec - lastUpdateMSec
 	
@@ -196,48 +195,48 @@ class Simulator(threading.Thread):
 					player_id = currentAP.player_id
 					self.set_db_coords(player_id, [self.apX[-1], self.apY[-1], self.apZ[-1]])
 					print 'id: {0}; x: {1}; y: {2}; z: {3}'.format(player_id, self.apX[-1], self.apY[-1], self.apZ[-1])
-				
+					
+		
+			# send AP positions to the DisplayServer using the DisplayClient
+			# if self.__displayClient:
+			# self.__displayClient.update(len(self._apList),apX,apY,apTheta)
+		
 	
-				# send AP positions to the DisplayServer using the DisplayClient
-			# 	if self.__displayClient:
-			# 		self.__displayClient.update(len(self._apList),apX,apY,apTheta)
+			# Start of Conditional Critical Region
+			self.simulator_lock.acquire() 
+	
+			# update the clock
+			lastUpdateSec = self.__currentSec
+			lastUpdateMSec = self.__currentMSec
+	
+			self.advanceClock()
 			
+			# Notify-All waiting VC threads
+			self.simulator_lock.notify_all()
 	
-				# Start of Conditional Critical Region
-				self.simulator_lock.acquire() 
+			# End of Conditinal Critical Region
+			self.simulator_lock.release()
 	
-				# update the clock
-				lastUpdateSec = self.__currentSec
-				lastUpdateMSec = self.__currentMSec
+			# acquire lock to wait for all VCs to finish updating
+			self.simulator_lock.acquire() # Start of Conditional Critical Region
+			while 1:
+				# check if all controllers and vehicles updated, otherwise wait
+				if self.numControlToUpdate == 0 and self.numPlaneToUpdate == 0:
+					break
+				self.simulator_lock.wait()
 	
-				self.advanceClock()
-				
-				# Notify-All waiting VC threads
-				self.simulator_lock.notify_all()
+			# reset numControlToUpdate and numPlaneToUpdate after waiting
+			self.numControlToUpdate = len(self._apList)
+			self.numPlaneToUpdate = len(self._apList)
+			self.simulator_lock.release() # End of Conditinal Critical Region
+			
+			# check db if this should be running
+			# self.halt = self.aircraft_collection.find_one({'_id': })['halt']
 	
-				# End of Conditinal Critical Region
-				self.simulator_lock.release()
+			#[DEBUG] delay run speed of program to read print statements
+			#time.sleep(1)
 	
-				# acquire lock to wait for all VCs to finish updating
-				self.simulator_lock.acquire() # Start of Conditional Critical Region
-				while 1:
-					# check if all controllers and vehicles updated, otherwise wait
-					if self.numControlToUpdate == 0 and self.numPlaneToUpdate == 0:
-						break
-					self.simulator_lock.wait()
-	
-				# reset numControlToUpdate and numPlaneToUpdate after waiting
-				self.numControlToUpdate = len(self._apList)
-				self.numPlaneToUpdate = len(self._apList)
-				self.simulator_lock.release() # End of Conditinal Critical Region
-				
-				# check db if this should be running
-				# self.halt = self.aircraft_collection.find_one({'_id': })['halt']
-	
-				#[DEBUG] delay run speed of program to read print statements
-				#time.sleep(1)
-	
-		print 'Cleared\n'
+			print 'Cleared\n'
 		
 def mainRun():
 

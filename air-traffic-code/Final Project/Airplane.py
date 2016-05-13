@@ -301,7 +301,8 @@ class Airplane(threading.Thread):
 		currentSec = 0
 		currentMSec = 0
 
-		while (currentSec < self.__sim.duration) and not self.__sim.halt and self.terminate:
+		while (currentSec < self.__sim.duration) and not self.__sim.halt and not self.terminate:
+			
 		# 	if not self.__sim.getDisplayClient().isConnected():
 		# 		break
 
@@ -312,7 +313,7 @@ class Airplane(threading.Thread):
 			currentMSec = self.__sim.getCurrentMSec()
 
 			while 1:
-
+				
 				# check if time has changed since last update
 				if not (self.__lastCheckedSec == currentSec and 
 						self.__lastCheckedMSec == currentMSec):
@@ -326,7 +327,7 @@ class Airplane(threading.Thread):
 												 
 				currentSec = self.__sim.getCurrentSec()
 				currentMSec = self.__sim.getCurrentMSec()
-
+			print 'here'
 			self.advanceNoiseFree(0,10)
 			#self.advance(0,10)
 
@@ -347,7 +348,7 @@ class Airplane(threading.Thread):
 
 			# end critical region
 			self.__sim.simulator_lock.release() 
-
+			print self.__sim.duration, self.__sim.halt, self.terminate
 
 	# The following three methods (getPlaneLock, compareId,
 	# reverseCompareId) is is needed when you try resource-hierarchy

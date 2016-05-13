@@ -1,5 +1,6 @@
 /* global THREE */
 /* global Aircraft */
+/* global _ */
 
 let objects = {};
 
@@ -112,5 +113,38 @@ objects.switchAircraft = function(template, scene, camera, aircraft) {
 		});
     }
 }
+
+objects.createOtherAircraft = function() {
+    let playerIDS = Aircraft.find({}, {fields:{_id: 1}}).fetch();
+    playerIDS = _.pluck(playerIDS, '_id');
+    for (let i=0; i<playerIDS.length; i++) {
+        if (!(scene.getObjectByName(playerIDS[i]))) {
+            var loader = new THREE.ObjectLoader();
+    		let objSource = './threejs/objects/us-c-130-hercules-airplane-threejs/us-c-130-hercules-airplane.json';
+    		let objName = 'c130';
+    		
+    		// let objSource = './threejs/objects/star-wars-vader-tie-fighter.json';
+    		// let objName = 'tie';
+    		loader.load(objSource, function(obj) {
+    		obj.name = objName;
+    		if (objName == 'tie') {
+    			obj.scale.set(6, 6, 6);
+    			let audio = document.createElement('audio');
+    			let source = document.createElement('source');
+    			source.src = './threejs/audio/tie-sound.mp3';
+    			audio.appendChild(source);
+    			audio.play();
+    		}
+    		obj.name = playerIDS[i];
+    	    scene.add(obj);
+    	    let aircraft = Aircraft.findOne({_id: playerIDS[i]});
+    	    let x_pos = aircraft['x-pos'];
+    	    let y_pos = aircraft['y-pos'];
+    	    let z_pos = aircraft['z-pos'];
+    	    obj.position.set(z_pos, y_pos, x_pos);
+            });
+        }
+    }
+};
 
 export default objects;
