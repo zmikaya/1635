@@ -35,7 +35,7 @@ class Simulator(threading.Thread):
 		self.apZ = []
 		self.apTheta = []
 		
-		self.duration = 1000
+		self.duration = float('inf')
 		self.halt = False
 
 		# NOTE: the '_' prefix is python convention, and does not 
