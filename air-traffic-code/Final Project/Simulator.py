@@ -35,7 +35,7 @@ class Simulator(threading.Thread):
 		self.apZ = []
 		self.apTheta = []
 		
-		self.duration = 200
+		self.duration = 1000
 		self.halt = False
 
 		# NOTE: the '_' prefix is python convention, and does not 
@@ -133,7 +133,7 @@ class Simulator(threading.Thread):
 
 		print "Simulator thread started"
 
-		while (self.__currentSec < self.duration) and not self.halt:
+		while (self.__currentSec < self.duration):
 			player_ids = self.get_player_ids()
 			numPlanes = len(player_ids)
 			currentPlanes = {key.player_id: val for (val, key) in enumerate(self._apList)}
