@@ -23,8 +23,8 @@ class TestUserController(unittest.TestCase):
 
 	# Test after calling the method getControl that a Control object is returned.
 	def testGetControl(self):
-		c = Control(5,0,20)
-		self.assertEqual(type(Control(5,0,20)), c)
+		c = Control(5,0,0)
+		self.assertTrue(isinstance(Control(5,1,1),Control))
 
 if __name__ == '__main__':
 	unittest.main()

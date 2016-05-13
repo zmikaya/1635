@@ -182,10 +182,10 @@ class PlaneController(threading.Thread):
 		self.__controllerInitialized = True
 
 	def getControl(self,sec,msec):
-        if type(sec) != float or type(sec) != int:
-            raise IllegalArgumentException("Wrong object type")
-        if type(msec) != float or type(msec) != int:
-            raise IllegalArgumentException("Wrong object type")
+		if type(sec) != float or type(sec) != int:
+			raise IllegalArgumentException("Wrong object type")
+		if type(msec) != float or type(msec) != int:
+			raise IllegalArgumentException("Wrong object type")
 		controlTime = sec+msec*1e-3
 		nextControl = None
 

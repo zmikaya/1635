@@ -44,8 +44,8 @@ class UserController(PlaneController):
 	def getControl(self,sec,msec):
 		if type(sec) != float or type(sec) != int:
 			raise IllegalArgumentException("Wrong object type")
-        if type(msec) != float or type(msec) != int:
-            raise IllegalArgumentException("Wrong object type")
+		if type(msec) != float or type(msec) != int:
+			raise IllegalArgumentException("Wrong object type")
                
 		throttle = self.getThrottle()
 		pitch = self.getPitch()

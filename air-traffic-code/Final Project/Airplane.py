@@ -20,7 +20,7 @@ class Airplane(threading.Thread):
 		threading.Thread.__init__(self)
 
 		# check for legal arguments
-		if len(pos) != 5:
+		if len(pos) != 5 or len([pos, dx, dy, dz, dtheta, dphi]) != 6:
 			raise IllegalArgumentException("Incorrect size Pos array")
 
 		# initiate Airplane
@@ -138,7 +138,7 @@ class Airplane(threading.Thread):
 
 	def setPosition(self,pos):
 		if len(pos) != 5:
-			raise IllegalArgumentException("new Pos array must be of length 3")
+			raise IllegalArgumentException("new Pos array must be of length 5")
 
 		self.ap_lock.acquire() # start critical region
 		self.__x = pos[0]
@@ -226,8 +226,8 @@ class Airplane(threading.Thread):
 		self.__dtheta = self.__dtheta
 		self.__dphi = self.__dphi
 
-		self.clampPosition()
-		self.clampVelocity()
+		# self.clampPosition()
+		# self.clampVelocity()
 
 		self.ap_lock.release() # end critical region
 		

@@ -14,7 +14,6 @@ from UserController import *
 from Airplane import *
 from DisplayClient import *
 from Control import *
-import zerorpc
 import json
 from pymongo import MongoClient
 
@@ -22,10 +21,6 @@ class Simulator(threading.Thread):
 
 	def __init__(self, displayClient=None, stream=False):
 		threading.Thread.__init__(self)
-    
-		self._stream = stream
-		self._zerorpc_client = zerorpc.Client()
-		self._zerorpc_client.connect("tcp://127.0.0.1:4242")
 		
 		self.db_ip = 'localhost'
 		self.db_port = 8081
@@ -83,8 +78,8 @@ class Simulator(threading.Thread):
 		self.simulator_lock.release() # end critical region
 
 	def addAirplane(self, ap):
-        if type(ap) != type(Airplane([0,0,0,0,0],0,0,0,0,0)):
-            raise IllegalArgumentException("Wrong object type")
+		if type(ap) != type(Airplane([0,0,0,0,0],0,0,0,0,0)):
+			raise IllegalArgumentException("Parameter ap must be an Airplane object")
 		self.simulator_lock.acquire() # start critical region
 		self._apList.append(ap)
 		print "---------Adding Ground Plane-----------\n"
@@ -100,10 +95,10 @@ class Simulator(threading.Thread):
 		self.simulator_lock.release() # end critical region
 		
 	def stream_data(self, aircraft_name, data):
-        if type(aircraft_name) != str:
-            raise IllegalArgumentException("String type required for 1st parameter")
-        if type(data) != list: 
-            raise IllegalArgumentException("List type required for 2nd parameter")s
+		if type(aircraft_name) != str:
+			raise IllegalArgumentException("String type required for 1st parameter")
+		if type(data) != list: 
+			raise IllegalArgumentException("List type required for 2nd parameter")
 		self.aircraft_collection.update_one(
 			{'name': aircraft_name},
 			{'$set': {'x-pos': data[0], 'y-pos': data[1], 'z-pos': data[2]}},

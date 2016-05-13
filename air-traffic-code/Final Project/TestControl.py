@@ -13,11 +13,11 @@ class TestControl(unittest.TestCase):
 	# test illegal arguments
 	def testLowS(self):
 		with self.assertRaises(IllegalArgumentException):
-			c = Control(4,0,0)	
+			c = Control(-4,0,0)	
 	
 	def testHighS(self):
 		with self.assertRaises(IllegalArgumentException):
-			c = Control(11,0,0)
+			c = Control(1100,0,0)
 	
 	def testLowOmegaX(self):
 		with self.assertRaises(IllegalArgumentException):
