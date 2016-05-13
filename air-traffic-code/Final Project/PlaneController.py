@@ -223,12 +223,12 @@ class PlaneController(threading.Thread):
 				self.__isTurning = False
 				self.__isAtOuter = not self.__isAtOuter # flip the parameter as we alternate between inner and outer turns
 				self.__timeOfManoeuverStart = controlTime
-				nextControl = Control(self.__maxTransSpeed, 0)
+				nextControl = Control(self.__maxTransSpeed, 0, 0)
 		
 		# we are currently moving in a straight line
 		else:
 			if (controlTime - self.__timeOfManoeuverStart < self.__edgeTravelDuration):
-				nextControl = Control(self.__maxTransSpeed, 0)
+				nextControl = Control(self.__maxTransSpeed, 0, 0)
 			# done with the edge travel - start making the turn
 			else:
 				self.__isTurning = True

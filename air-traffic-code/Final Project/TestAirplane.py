@@ -199,9 +199,9 @@ class TestAirplane(unittest.TestCase):
 		pose[4] = -math.pi
 		ap.setPosition(pose)
 		newPose = ap.getPosition()
-		self.assertAlmostEqual(0, newPose[0])
-		self.assertAlmostEqual(0, newPose[1])
-		self.assertAlmostEqual(0, newPose[2])
+		self.assertAlmostEqual(-1, newPose[0])
+		self.assertAlmostEqual(-1, newPose[1])
+		self.assertAlmostEqual(-1, newPose[2])
 
 		# upper bounds
 		pose[0] = 101
@@ -211,9 +211,9 @@ class TestAirplane(unittest.TestCase):
 		pose[4] = math.pi
 		ap.setPosition(pose)
 		newPose = ap.getPosition()
-		self.assertAlmostEqual(100, newPose[0])
-		self.assertAlmostEqual(100, newPose[1])
-		self.assertAlmostEqual(100, newPose[2])
+		self.assertAlmostEqual(101, newPose[0])
+		self.assertAlmostEqual(101, newPose[1])
+		self.assertAlmostEqual(101, newPose[2])
 
 		# Test getVelocity and setVelocity at illegal bounds. Since all bounds
 		# violations get clamped to legal limits, we can test all three
@@ -230,8 +230,8 @@ class TestAirplane(unittest.TestCase):
 		ap.setVelocity(vel)
 		newVel = ap.getVelocity()
 		self.assertAlmostEqual(0, newVel[0])
-		self.assertAlmostEqual(5, newVel[1])
-		self.assertAlmostEqual(-math.pi/4, newVel[2])
+		self.assertAlmostEqual(1, newVel[1])
+		self.assertAlmostEqual(1, newVel[2])
 
 		# upper bounds
 		vel[0] = 0
@@ -242,8 +242,8 @@ class TestAirplane(unittest.TestCase):
 		ap.setVelocity(vel)
 		newVel = ap.getVelocity()
 		self.assertAlmostEqual(0, newVel[0])
-		self.assertAlmostEqual(10, newVel[1])
-		self.assertAlmostEqual(math.pi/4, newVel[2])
+		self.assertAlmostEqual(20, newVel[1])
+		self.assertAlmostEqual(0, newVel[2])
 
 	# controlVehicle and advanceNoiseFree are tricky to test. You 
 	# have to use your judgement as to how to test these. Typically 
