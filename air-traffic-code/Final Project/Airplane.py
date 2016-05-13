@@ -20,7 +20,7 @@ class Airplane(threading.Thread):
 		threading.Thread.__init__(self)
 
 		# check for legal arguments
-		if len(pos) != 5 and len([pos, dx, dy, dz, dtheta, dphi, player_id]) != 7:
+		if len(pos) != 5:
 			raise IllegalArgumentException("Incorrect size Pos array and/or wrong number of arguments")
 
 		# initiate Airplane
@@ -52,23 +52,23 @@ class Airplane(threading.Thread):
 		self.terminate = False
 		
 		
-		if type(dx) != float or type(dx) != int:
+		if type(dx) != float and type(dx) != int:
 			raise IllegalArgumentException('dx must be either a float or int type')
 		else:
 			self.__dx = dx
-		if type(dy) != float or type(dy) != int:
+		if type(dy) != float and type(dy) != int:
 			raise IllegalArgumentException('dy must be either a float or int type')
 		else:
 			self.__dy = dy
-		if type(dz) != float or type(dz) != int:
+		if type(dz) != float and type(dz) != int:
 			raise IllegalArgumentException('dz must be either a float or int type')
 		else:
 			self.__dz = dz
-		if type(dtheta) != float:
+		if type(dtheta) != float and type(dtheta) != int:
 			raise IllegalArgumentException('dtheta must be a float type')
 		else:
 			self.__dtheta = dtheta
-		if type(dphi) != float:
+		if type(dphi) != float and type(dphi) != int:
 			raise IllegalArgumentException('dphi must be a float type')
 		else:
 			self.__dphi = dphi

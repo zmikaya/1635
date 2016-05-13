@@ -18,7 +18,7 @@ class TestUserController(unittest.TestCase):
 	def testConstructor(self):
 		sim = Simulator()
 		pos = [0,0,0,0,0]
-		ap = Airplane(pos,1, 0, 0, math.pi, math.pi/2); ap.addSimulator(sim)
+		ap = Airplane(pos,1, 0, 0, math.pi, math.pi/2, "testUserController"); ap.addSimulator(sim)
 		uc = UserController(sim,ap)
 
 	# Test after calling the method getControl that a Control object is returned.
