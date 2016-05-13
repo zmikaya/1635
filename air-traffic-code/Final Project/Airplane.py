@@ -1,7 +1,7 @@
 # Airplane.py
 # Assignment 3
 
-# Author: Alessandro Lira
+# Author: Frederick Daso & Zach Mikaya
 
 import math, threading, sys, random
 
@@ -20,24 +20,58 @@ class Airplane(threading.Thread):
 		threading.Thread.__init__(self)
 
 		# check for legal arguments
-		if len(pos) != 5 or len([pos, dx, dy, dz, dtheta, dphi]) != 6:
-			raise IllegalArgumentException("Incorrect size Pos array")
+		if len(pos) != 5 and len([pos, dx, dy, dz, dtheta, dphi, player_id]) != 7:
+			raise IllegalArgumentException("Incorrect size Pos array and/or wrong number of arguments")
 
 		# initiate Airplane
-		self.__x = pos[0]
-		self.__y = pos[1]
-		self.__z = pos[2]
-		self.__theta = pos[3]
-		self.__phi = pos[4]
+		if pos[0] < -10000 or pos[0] > 10000:
+			raise IllegalArgumentException('X-position out of bounds: -10000 < x < 10000')
+		else:
+			self.__x = pos[0]
+		if pos[1] < 0 or pos[1] > 10000:
+			raise IllegalArgumentException('Y-position out of bounds:  0 < x < 10000')
+		else:
+			self.__y = pos[1]
+		if pos[2] < -10000 or pos[2] > 10000:
+			raise IllegalArgumentException('Z-position out of bounds: -10000 < x < 10000')
+		else:
+			self.__z = pos[2]
+		if pos[3] <= -math.pi or pos[3] > math.pi:
+			raise IllegalArgumentException('Theta out of bounds: -pi < theta < pi')
+		else:
+			self.__theta = pos[3]
+		if pos[4] < -math.pi/2 or pos[3] > math.pi/2:
+			raise IllegalArgumentException('Phi out of bounds: -pi/2 < phi < pi')
+		else:
+			self.__phi = pos[4]
 		
-		self.player_id = player_id
+		if type(player_id) != str:
+			raise IllegalArgumentException('Player_id entered is wrong datatype, must be a string')
+		else:
+			self.player_id = player_id
 		self.terminate = False
-
-		self.__dx = dx
-		self.__dy = dy
-		self.__dz = dz
-		self.__dtheta = dtheta
-		self.__dphi = dphi
+		
+		
+		if type(dx) != float or type(dx) != int:
+			raise IllegalArgumentException('dx must be either a float or int type')
+		else:
+			self.__dx = dx
+		if type(dy) != float or type(dy) != int:
+			raise IllegalArgumentException('dy must be either a float or int type')
+		else:
+			self.__dy = dy
+		if type(dz) != float or type(dz) != int:
+			raise IllegalArgumentException('dz must be either a float or int type')
+		else:
+			self.__dz = dz
+		if type(dtheta) != float:
+			raise IllegalArgumentException('dtheta must be a float type')
+		else:
+			self.__dtheta = dtheta
+		if type(dphi) != float:
+			raise IllegalArgumentException('dphi must be a float type')
+		else:
+			self.__dphi = dphi
 
 		# intrinsic "self" lock
 		self.ap_lock = threading.RLock()

@@ -1,7 +1,7 @@
 # Simulator.py
-# Assignment 3
+# Final Project
 
-# Author: Frederick Daso
+# Author: Frederick Daso & Zach Mikaya
 
 import math, sys, threading, time, random
 
@@ -19,7 +19,7 @@ from pymongo import MongoClient
 
 class Simulator(threading.Thread):
 
-	def __init__(self, displayClient=None, stream=False):
+	def __init__(self):
 		threading.Thread.__init__(self)
 		
 		self.db_ip = 'localhost'
@@ -46,7 +46,6 @@ class Simulator(threading.Thread):
 		# if displayClient is None:
 		# 	print 'WARNING: No DisplayClient specified'
 		# 	pass
-		self.__displayClient = displayClient
 				
 		# Non-Private class members
 		self.numControlToUpdate = 0
@@ -57,8 +56,8 @@ class Simulator(threading.Thread):
 
 	#[PLACEHOLDER] check if necessary
 	# UPDATE: used for quit condition loop
-	def getDisplayClient(self):
-		return self.__displayClient
+	# def getDisplayClient(self):
+	# 	return self.__displayClient
 
 	def getCurrentSec(self):
 		self.simulator_lock.acquire() # start critical region

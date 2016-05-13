@@ -1,7 +1,7 @@
 # TestAirplane
-# Assignment 3
+# Final Project
 
-# Author: Alessandro Lira
+# Author: Frederick Daso
 
 import unittest, math
 
