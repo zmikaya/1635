@@ -28,17 +28,20 @@ class UserController(PlaneController):
 		
 	def getThrottle(self):
 		aircraft_collection = self.__sim.aircraft_collection
-		throttle = aircraft_collection.find_one({'name': 'b2'})['throttle']
+		player_id = self.__sim.player_id
+		throttle = aircraft_collection.find_one({'_id': player_id})['throttle']
 		return throttle
 		
 	def getPitch(self):
 		aircraft_collection = self.__sim.aircraft_collection
-		pitch = aircraft_collection.find_one({'name': 'b2'})['pitch']
+		player_id = self.__sim.player_id
+		pitch = aircraft_collection.find_one({'_id': player_id})['pitch']
 		return -pitch
 		
 	def getRoll(self):
 		aircraft_collection = self.__sim.aircraft_collection
-		roll = aircraft_collection.find_one({'name': 'b2'})['roll']
+		player_id = self.__sim.player_id
+		roll = aircraft_collection.find_one({'_id': player_id})['roll']
 		return -roll
 
 	def getControl(self,sec,msec):

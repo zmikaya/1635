@@ -44,5 +44,28 @@ Meteor.methods({
         client.invoke('startSimulator', 'filler', function(error, res) {
             console.log(error);
         });
+    },
+    
+    'addPlayer': function() {
+        
+        let playerObj = {
+            'x-pos': 300,
+            'y-pos': 300,
+            'z-pos': 300,
+            'pitch': null,
+            'roll': null,
+            'throttle': 0,
+            'halt': 1
+        };
+        
+        let _id = Aircraft.insert(playerObj);
+        
+        return _id;
+        
+    },
+    
+    'removePlayer': function(playerID) {
+        Aircraft.remove({_id: playerID});
+        console.log('removed');
     }
 })

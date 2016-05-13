@@ -8,7 +8,7 @@ class StreamingRPC(object):
         self.sim = None
     
     def startSimulator(self, val):
-        mainRun(1)
+        mainRun()
 
     
 s = zerorpc.Server(StreamingRPC())

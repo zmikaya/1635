@@ -16,11 +16,22 @@ import './main.html';
 
 /* Initialize state variables */
 Template.mainGraphics.onCreated(function() {
-	Meteor.call('stopSystem');
+	let template = this;
+	
 	this.rollState = new ReactiveVar(0);
 	this.pitchState = new ReactiveVar(0);
 	this.boxObjects = new ReactiveVar([]);
 	this.aircraftSelection = new ReactiveVar('c130');
+	this.playerID = new ReactiveVar(null);
+	
+	modules.session.addPlayer(template);
+	
+	// Get rid of the aircraft from the db when the window is closed
+	$(window).bind('beforeunload', function() {
+      modules.session.closingWindow(template);
+  });
+  
+
 });
 
 /* Handle keyboard, mouse, or other peripheral user interactions */
@@ -50,7 +61,7 @@ Template.mainGraphics.onRendered(function() {
   let template = this;
   
   // Set initial aircraft position
-  Meteor.call('setInitialAircraftPos', [300, 300, 300]);
+  // Meteor.call('setInitialAircraftPos', [300, 300, 300]);
   
   modules.aircraftControls.createThrottleSlider(template, document);
 
@@ -113,11 +124,11 @@ Template.mainGraphics.onRendered(function() {
 		
 		// Load aircraft
 		var loader = new THREE.ObjectLoader();
-		// let objSource = './threejs/objects/us-c-130-hercules-airplane-threejs/us-c-130-hercules-airplane.json';
-		// let objName = 'c130';
+		let objSource = './threejs/objects/us-c-130-hercules-airplane-threejs/us-c-130-hercules-airplane.json';
+		let objName = 'c130';
 		
-		let objSource = './threejs/objects/star-wars-vader-tie-fighter.json';
-		let objName = 'tie';
+		// let objSource = './threejs/objects/star-wars-vader-tie-fighter.json';
+		// let objName = 'tie';
 		loader.load(objSource, function(obj) {
 			obj.name = objName;
 			if (objName == 'tie') {

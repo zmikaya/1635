@@ -16,7 +16,7 @@ class Airplane(threading.Thread):
 	# lock is only used for gated access to the resource
 	ap_class_lock = threading.RLock()
 
-	def __init__(self,pos,dx,dy,dz,dtheta, dphi):
+	def __init__(self,pos,dx,dy,dz,dtheta, dphi, player_id):
 		threading.Thread.__init__(self)
 
 		# check for legal arguments
@@ -29,6 +29,8 @@ class Airplane(threading.Thread):
 		self.__z = pos[2]
 		self.__theta = pos[3]
 		self.__phi = pos[4]
+		
+		self.player_id = player_id
 
 		self.__dx = dx
 		self.__dy = dy

@@ -40,7 +40,7 @@ class Simulator(threading.Thread):
 		self.apZ = []
 		self.apTheta = []
 		
-		self.duration = 200
+		self.duration = 30
 		self.halt = False
 
 		# NOTE: the '_' prefix is python convention, and does not 
@@ -100,22 +100,26 @@ class Simulator(threading.Thread):
 		self.numPlaneToUpdate += 1
 		self.simulator_lock.release() # end critical region
 		
-	def set_db_coords(self, aircraft_name, coords):
+	def set_db_coords(self, player_id, coords):
 		self.aircraft_collection.update_one(
-			{'name': aircraft_name},
+			{'_id': player_id},
 			{'$set': {'x-pos': coords[0], 'y-pos': coords[1], 'z-pos': coords[2]}},
 			upsert=True
 		)
 		
-	def set_db_angles(self, aircraft_name, angles):
+	def set_db_angles(self, player_id, angles):
 		self.aircraft_collection.update_one(
-			{'name': aircraft_name},
+			{'_id': player_id},
 			{'$set': {'pitch': angles[0], 'roll': angles[1]}},
 			upsert=True
 		)
 		
 	def haltSystem(self):
 		self.halt = True
+		
+	def get_player_ids(self):
+		player_ids = list(self.aircraft_collection.find({}, {'_id': 1}))
+		return player_ids
 
 	def run(self):
 
@@ -125,8 +129,8 @@ class Simulator(threading.Thread):
 		# real-time implementation in a later assignment, we're actually going to
 		# need to measure the elapsed time. 
 		
-		self.set_db_coords('b2', [300, 300, 300])
-		self.set_db_angles('b2', [0, 0])
+		# self.set_db_coords('b2', [300, 300, 300])
+		# self.set_db_angles('b2', [0, 0])
 		
 		lastUpdateSec = self.__currentSec
 		lastUpdateMSec = self.__currentMSec
@@ -166,12 +170,10 @@ class Simulator(threading.Thread):
 				self.apZ.append(pos[2])
 				apTheta.append(pos[3])
 				self.apTheta.append(pos[3])
-				
-			# if self._stream:
-			  #self._zerorpc_client.sendPos(str(self.apX[-1]))
-			  #self._zerorpc_client.sendPos('test')
-			self.set_db_coords('b2', [self.apX[-1], self.apY[-1], self.apZ[-1]])
-			print 'x: {0}; y: {1}; z: {2}'.format(self.apX[-1], self.apY[-1], self.apZ[-1])
+				player_id = currentAP.player_id
+				self.set_db_coords(player_id, [self.apX[-1], self.apY[-1], self.apZ[-1]])
+				print 'id: {0}; x: {1}; y: {2}; z: {3}'.format(player_id, self.apX[-1], self.apY[-1], self.apZ[-1])
+			
 
 			# send AP positions to the DisplayServer using the DisplayClient
 		# 	if self.__displayClient:
@@ -217,9 +219,12 @@ class Simulator(threading.Thread):
 			self.__displayClient.clear()
 		print 'Cleared\n'
 		
-def mainRun(numPlanes):
+def mainRun():
 
 	sim = Simulator()
+	
+	player_ids = sim.get_player_ids()
+	numPlanes = len(player_ids)
 
 	leaderType = 1 #  0: RandomController, 1: LeadingController
 	if numPlanes == 1: leaderType = 0 # protection in case only one vehicles
@@ -228,6 +233,7 @@ def mainRun(numPlanes):
 	fc = None # First controller
 
 	for i in range(numPlanes):
+		player_id = player_ids[i]
 		initialPos = ([300, 300, 300, 0, 0])
 		speed = random.random()*5.0 + 5.0
 		initialDX = speed*math.cos(initialPos[3])
@@ -237,7 +243,7 @@ def mainRun(numPlanes):
 		initialOmegaX = 0
 		initialOmegaZ = 0
 
-		apf = Airplane(initialPos, initialDX, initialDY, initialDZ, initialOmegaX, initialOmegaZ)
+		apf = Airplane(initialPos, initialDX, initialDY, initialDZ, initialOmegaX, initialOmegaZ, player_id)
 		pc = None # null vehicle controller
 
 
@@ -270,64 +276,5 @@ def mainRun(numPlanes):
 
 # Simulator main method called when Simulator.py is executed directly
 if __name__ == '__main__':
-
-
-		# check for proper syntax
-		if len(sys.argv) != 2:
-			raise IllegalArgumentException("Usage: Simulator <numPlanes> <hostname>\n"+
-				"where <numPlanes> is number of vehicles to run in Simulation\n"+
-				"where <hostname> is where the DisplayServer is running")
-			sys.exit()
-
-		numPlanes = int(sys.argv[1])
-		# host = sys.argv[2]
-
-		# dc = DisplayClient(host)
-		sim = Simulator()
-
-		leaderType = 1 #  0: RandomController, 1: LeadingController
-		if numPlanes == 1: leaderType = 0 # protection in case only one vehicles
-
-		leader = None
-		fc = None # First controller
-
-		for i in range(numPlanes):
-			initialPos = ([300, 300, 300, 0, 0])
-			speed = random.random()*5.0 + 5.0
-			initialDX = speed*math.cos(initialPos[3])
-			initialDY = speed*math.sin(initialPos[3])
-			initialDZ = speed*math.sin(initialPos[4])
-
-			initialOmegaX = 0
-			initialOmegaZ = 0
-
-			apf = Airplane(initialPos, initialDX, initialDY, initialDZ, initialOmegaX, initialOmegaZ)
-			pc = None # null vehicle controller
-
-
-			if i == 0:
-				if leaderType == 0:
-					pc = UserController(sim, apf)
-				elif leaderType == 1:
-					pc = LeadingController(sim,apf)
-
-				fc = pc # 1st controller is the now defined pc
-				leader = apf 
-
-			else:
-				if leader is not None:
-					pc = FollowingController(sim,apf,leader)
-					if leaderType == 1:
-						fc.addFollower(apf)
-
-				else:
-					print "ERROR: No leader defined."
-					sys.exit()
-
-			apf.addSimulator(sim)
-			sim.addAirplane(apf)
-			pc.start()
-			apf.start()
-
-		sim.start()
-		sim.join()
+	
+	mainRun()

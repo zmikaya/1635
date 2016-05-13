@@ -122,7 +122,8 @@ aircraftControls._updatePosition = function(template, aircraft, deltaT) {
   //   aircraft[i].position.z += distance;
   //   console.log(aircraft[i].position.z);
   // }
-  let aircraft_pos = Aircraft.findOne({'name': 'b2'});
+  let playerID = template.playerID.get();
+  let aircraft_pos = Aircraft.findOne({_id: playerID});
   let x_pos = aircraft_pos['x-pos'];
   let y_pos = aircraft_pos['y-pos'];
   let z_pos = aircraft_pos['z-pos'];

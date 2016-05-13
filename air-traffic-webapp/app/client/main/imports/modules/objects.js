@@ -56,7 +56,8 @@ objects._makeFall = function(template, deltaT) {
 };
 
 objects.controlDynamics = function(template, aircraft, deltaT) {
-    let halt = Aircraft.findOne({'name': 'b2'}).halt;
+    let playerID = template.playerID.get();
+    let halt = Aircraft.findOne({_id: playerID}).halt;
     if (!halt) {
         let aircraftPos = [aircraft.position.x, aircraft.position.y, aircraft.position.z];
         this._checkPositions(template, aircraftPos);
