@@ -4,16 +4,16 @@ Meteor.methods({
     //     client.connect('')
     // }
     
-    'setThrottle': function(throttle) {
-        Aircraft.upsert({'name': 'b2'}, {$set: {'throttle': throttle}});
+    'setThrottle': function(playerID, throttle) {
+        Aircraft.update({'_id': playerID}, {$set: {'throttle': throttle}});
     },
     
-    'setPitch': function(pitch) {
-        Aircraft.upsert({'name': 'b2'}, {$set: {'pitch': pitch}});
+    'setPitch': function(playerID, pitch) {
+        Aircraft.update({'_id': playerID}, {$set: {'pitch': pitch}});
     },
     
-    'setRoll': function(roll) {
-        Aircraft.upsert({'name': 'b2'}, {$set: {'roll': roll}});
+    'setRoll': function(playerID, roll) {
+        Aircraft.upsert({'_id': playerID}, {$set: {'roll': roll}});
     },
     
     'setInitialAircraftPos': function(pos) {
@@ -26,24 +26,24 @@ Meteor.methods({
         }});
     },
     
-    'stopSystem': function() {
-        Aircraft.upsert({'name': 'b2'},
+    'stopSystem': function(playerID) {
+        Aircraft.update({'_id': playerID},
             {$set: {'halt': 1}}
         );
     },
     
-    'startSystem': function() {
+    'startSystem': function(playerID) {
         // Make sure the system was actually stopped.
-        Meteor.call('stopSystem');
-        Aircraft.upsert({'name': 'b2'},
+        Meteor.call('stopSystem', playerID);
+        Aircraft.update({'_id': playerID},
             {$set: {'halt': 0}}
         );
         
-        let client = new Zerorpc()
-        client.connect("tcp://0.0.0.0:4242");
-        client.invoke('startSimulator', 'filler', function(error, res) {
-            console.log(error);
-        });
+        // let client = new Zerorpc()
+        // client.connect("tcp://0.0.0.0:4242");
+        // client.invoke('startSimulator', 'filler', function(error, res) {
+        //     console.log(error);
+        // });
     },
     
     'addPlayer': function() {
@@ -52,8 +52,8 @@ Meteor.methods({
             'x-pos': 300,
             'y-pos': 300,
             'z-pos': 300,
-            'pitch': null,
-            'roll': null,
+            'pitch': 0,
+            'roll': 0,
             'throttle': 0,
             'halt': 1
         };
