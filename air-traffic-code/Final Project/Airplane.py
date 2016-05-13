@@ -31,6 +31,7 @@ class Airplane(threading.Thread):
 		self.__phi = pos[4]
 		
 		self.player_id = player_id
+		self.terminate = False
 
 		self.__dx = dx
 		self.__dy = dy
@@ -300,7 +301,7 @@ class Airplane(threading.Thread):
 		currentSec = 0
 		currentMSec = 0
 
-		while (currentSec < self.__sim.duration) and not self.__sim.halt:
+		while (currentSec < self.__sim.duration) and not self.__sim.halt and self.terminate:
 		# 	if not self.__sim.getDisplayClient().isConnected():
 		# 		break
 

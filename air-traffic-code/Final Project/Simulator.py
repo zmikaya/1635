@@ -97,13 +97,6 @@ class Simulator(threading.Thread):
 		self.numPlaneToUpdate += 1
 		self.simulator_lock.release() # end critical region
 		
-<<<<<<< HEAD
-	def stream_data(self, aircraft_name, data):
-		if type(aircraft_name) != str:
-			raise IllegalArgumentException("String type required for 1st parameter")
-		if type(data) != list: 
-			raise IllegalArgumentException("List type required for 2nd parameter")
-=======
 	def set_db_coords(self, player_id, coords):
 		self.aircraft_collection.update_one(
 			{'_id': player_id},
@@ -112,7 +105,6 @@ class Simulator(threading.Thread):
 		)
 		
 	def set_db_angles(self, player_id, angles):
->>>>>>> dev
 		self.aircraft_collection.update_one(
 			{'_id': player_id},
 			{'$set': {'pitch': angles[0], 'roll': angles[1]}},
@@ -147,6 +139,34 @@ class Simulator(threading.Thread):
 		print "Simulator thread started"
 
 		while (self.__currentSec < self.duration) and not self.halt:
+			
+			player_ids = sim.get_player_ids()
+			numPlanes = len(player_ids)
+		
+			for i in range(numPlanes):
+				player_id = player_ids[i]
+				if sim._apList[i].player_id is in player_id:
+					break
+				elif sim._apList[i].player_id is not in player_id:
+					sim._apList.remove(sim._apList[i])
+					sim._apList[i].terminate = True
+				else:
+					initialPos = ([300, 300, 300, 0, 0])
+					speed = random.random()*5.0 + 5.0
+					initialDX = speed*math.cos(initialPos[3])
+					initialDY = speed*math.sin(initialPos[3])
+					initialDZ = speed*math.sin(initialPos[4])
+			
+					initialOmegaX = 0
+					initialOmegaZ = 0
+			
+					apf = Airplane(initialPos, initialDX, initialDY, initialDZ, initialOmegaX, initialOmegaZ, player_id)
+					pc = UserController(sim, apf)
+			
+					apf.addSimulator(sim)
+					sim.addAirplane(apf)
+					pc.start()
+					apf.start()
 			#[NOT NECESSARY] Implemented for convenience of having the VC and 
 			# Sim threads ends when quit is called on the DisplayServer
 		# 	if not self.__displayClient.isConnected():
@@ -227,28 +247,6 @@ class Simulator(threading.Thread):
 def mainRun():
 
 	sim = Simulator()
-	
-	player_ids = sim.get_player_ids()
-	numPlanes = len(player_ids)
-
-	for i in range(numPlanes):
-		player_id = player_ids[i]
-		initialPos = ([300, 300, 300, 0, 0])
-		speed = random.random()*5.0 + 5.0
-		initialDX = speed*math.cos(initialPos[3])
-		initialDY = speed*math.sin(initialPos[3])
-		initialDZ = speed*math.sin(initialPos[4])
-
-		initialOmegaX = 0
-		initialOmegaZ = 0
-
-		apf = Airplane(initialPos, initialDX, initialDY, initialDZ, initialOmegaX, initialOmegaZ, player_id)
-		pc = UserController(sim, apf)
-
-		apf.addSimulator(sim)
-		sim.addAirplane(apf)
-		pc.start()
-		apf.start()
 
 	sim.start()
 	sim.join()
