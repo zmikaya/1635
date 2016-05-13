@@ -22,7 +22,7 @@ class LeadingController(PlaneController):
 	# Adds a Airplane to the list of chasers considered by this
     # groundPlane.
 	def addFollower(self,ap):
-		if type(ap) != type(Airplane([0,0,0,0,0],0,0,0,0,0)):
+		if type(ap) != type(Airplane([0,0,0,0,0],0,0,0,0,0, "test")):
 			raise IllegalArgumentException("Wrong object type")
 		self.__apList.append(ap)
 

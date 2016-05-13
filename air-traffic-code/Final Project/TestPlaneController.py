@@ -18,7 +18,7 @@ class TestPlaneController(unittest.TestCase):
 	def testConstructor(self):
 		sim = Simulator()
 		pos = [0,0,0,0,0]
-		ap = Airplane(pos,1, 0, 0, math.pi, math.pi/2); ap.addSimulator(sim)
+		ap = Airplane(pos,1, 0, 0, math.pi, math.pi/2, "test"); ap.addSimulator(sim)
 		pc = PlaneController(sim,ap)
 
 	# Tests if after calling the method "setNumSides (int n)" the variable
@@ -26,7 +26,7 @@ class TestPlaneController(unittest.TestCase):
 	def testSetSides(self):
 		sim = Simulator()
 		pose = [0,0,0,0,0]
-		ap = Airplane(pose,1,0,0,math.pi, math.pi/2)
+		ap = Airplane(pose,1,0,0,math.pi, math.pi/2, "test")
 		pc = PlaneController(sim,ap)
 
 		# values within boundaries

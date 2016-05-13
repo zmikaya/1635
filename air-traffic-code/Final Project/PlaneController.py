@@ -58,8 +58,8 @@ class PlaneController(threading.Thread):
 		self.__lastCheckedMSec = 0
 
 	def setNumSides(self,numSides):
-                if (numSides < 3) and (numSides > 10):
-                        raise IllegalArgumentException("Number numSides is too small or large - must be in between 3 and 10, inclusive")
+		if (numSides < 3) and (numSides > 10):
+			raise IllegalArgumentException("Number numSides is too small or large - must be in between 3 and 10, inclusive")
 		if (numSides>=3) and (numSides<=10):
 			self.__numSides = numSides
 		return self.__numSides
@@ -252,7 +252,7 @@ class PlaneController(threading.Thread):
 		currentSec = 0
 		currentMSec = 0
 
-		while(currentSec < self.__sim.duration) and not self.__sim.halt:
+		while(currentSec < self.__sim.duration) and not self.__sim.halt and not self.__ap.terminate:
 			
 			#[NOT NECESSARY] Implemented for convenience of having the PC and 
 			# Sim threads ends when quit is called on the DisplayServer

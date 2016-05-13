@@ -81,7 +81,7 @@ class Simulator(threading.Thread):
 		self.simulator_lock.release() # end critical region
 
 	def addAirplane(self, ap):
-		if type(ap) != type(Airplane([0,0,0,0,0],0,0,0,0,0)):
+		if type(ap) != type(Airplane([0,0,0,0,0],0,0,0,0,0, "test")):
 			raise IllegalArgumentException("Parameter ap must be an Airplane object")
 		self.simulator_lock.acquire() # start critical region
 		self._apList.append(ap)
@@ -132,9 +132,6 @@ class Simulator(threading.Thread):
 		lastUpdateSec = self.__currentSec
 		lastUpdateMSec = self.__currentMSec
 
-		if self.__displayClient:
-			self.__displayClient.clear()
-			self.__displayClient.traceOn()
 
 		print "Simulator thread started"
 
@@ -145,9 +142,9 @@ class Simulator(threading.Thread):
 		
 			for i in range(numPlanes):
 				player_id = player_ids[i]
-				if sim._apList[i].player_id is in player_id:
-					break
-				elif sim._apList[i].player_id is not in player_id:
+				if sim._apList[i].player_id in player_id:
+					pass
+				elif sim._apList[i].player_id not in player_id:
 					sim._apList.remove(sim._apList[i])
 					sim._apList[i].terminate = True
 				else:
@@ -172,76 +169,74 @@ class Simulator(threading.Thread):
 		# 	if not self.__displayClient.isConnected():
 		# 		print 'SIM: display client NOT connected'
 		# 		break
-
-			deltaSec = self.__currentSec - lastUpdateSec
-			deltaMSec = self.__currentMSec - lastUpdateMSec
-
-			if (deltaMSec < 0):
-				deltaMSec += 1e3
-				deltaSec -= 1
-
-			apX = []
-			apY = []
-			apTheta = []
-
-			# populate data to be sent to display client 
-			for currentAP in self._apList:
-				pos = currentAP.getPosition()
-				vel = currentAP.getVelocity()
-				apX.append(pos[0])
-				self.apX.append(pos[0])
-				apY.append(pos[1])
-				self.apY.append(pos[1])
-				self.apZ.append(pos[2])
-				apTheta.append(pos[3])
-				self.apTheta.append(pos[3])
-				player_id = currentAP.player_id
-				self.set_db_coords(player_id, [self.apX[-1], self.apY[-1], self.apZ[-1]])
-				print 'id: {0}; x: {1}; y: {2}; z: {3}'.format(player_id, self.apX[-1], self.apY[-1], self.apZ[-1])
-			
-
-			# send AP positions to the DisplayServer using the DisplayClient
-		# 	if self.__displayClient:
-		# 		self.__displayClient.update(len(self._apList),apX,apY,apTheta)
 		
-
-			# Start of Conditional Critical Region
-			self.simulator_lock.acquire() 
-
-			# update the clock
-			lastUpdateSec = self.__currentSec
-			lastUpdateMSec = self.__currentMSec
-
-			self.advanceClock()
+		if len(sim._apList) > 0:
+				deltaSec = self.__currentSec - lastUpdateSec
+				deltaMSec = self.__currentMSec - lastUpdateMSec
+	
+				if (deltaMSec < 0):
+					deltaMSec += 1e3
+					deltaSec -= 1
+	
+				apX = []
+				apY = []
+				apTheta = []
+	
+				# populate data to be sent to display client 
+				for currentAP in self._apList:
+					pos = currentAP.getPosition()
+					vel = currentAP.getVelocity()
+					apX.append(pos[0])
+					self.apX.append(pos[0])
+					apY.append(pos[1])
+					self.apY.append(pos[1])
+					self.apZ.append(pos[2])
+					apTheta.append(pos[3])
+					self.apTheta.append(pos[3])
+					player_id = currentAP.player_id
+					self.set_db_coords(player_id, [self.apX[-1], self.apY[-1], self.apZ[-1]])
+					print 'id: {0}; x: {1}; y: {2}; z: {3}'.format(player_id, self.apX[-1], self.apY[-1], self.apZ[-1])
+				
+	
+				# send AP positions to the DisplayServer using the DisplayClient
+			# 	if self.__displayClient:
+			# 		self.__displayClient.update(len(self._apList),apX,apY,apTheta)
 			
-			# Notify-All waiting VC threads
-			self.simulator_lock.notify_all()
-
-			# End of Conditinal Critical Region
-			self.simulator_lock.release()
-
-			# acquire lock to wait for all VCs to finish updating
-			self.simulator_lock.acquire() # Start of Conditional Critical Region
-			while 1:
-				# check if all controllers and vehicles updated, otherwise wait
-				if self.numControlToUpdate == 0 and self.numPlaneToUpdate == 0:
-					break
-				self.simulator_lock.wait()
-
-			# reset numControlToUpdate and numPlaneToUpdate after waiting
-			self.numControlToUpdate = len(self._apList)
-			self.numPlaneToUpdate = len(self._apList)
-			self.simulator_lock.release() # End of Conditinal Critical Region
-			
-			# check db if this should be running
-			# self.halt = self.aircraft_collection.find_one({'_id': })['halt']
-
-			#[DEBUG] delay run speed of program to read print statements
-			#time.sleep(1)
-
-		if self.__displayClient:
-			self.__displayClient.traceOff()
-			self.__displayClient.clear()
+	
+				# Start of Conditional Critical Region
+				self.simulator_lock.acquire() 
+	
+				# update the clock
+				lastUpdateSec = self.__currentSec
+				lastUpdateMSec = self.__currentMSec
+	
+				self.advanceClock()
+				
+				# Notify-All waiting VC threads
+				self.simulator_lock.notify_all()
+	
+				# End of Conditinal Critical Region
+				self.simulator_lock.release()
+	
+				# acquire lock to wait for all VCs to finish updating
+				self.simulator_lock.acquire() # Start of Conditional Critical Region
+				while 1:
+					# check if all controllers and vehicles updated, otherwise wait
+					if self.numControlToUpdate == 0 and self.numPlaneToUpdate == 0:
+						break
+					self.simulator_lock.wait()
+	
+				# reset numControlToUpdate and numPlaneToUpdate after waiting
+				self.numControlToUpdate = len(self._apList)
+				self.numPlaneToUpdate = len(self._apList)
+				self.simulator_lock.release() # End of Conditinal Critical Region
+				
+				# check db if this should be running
+				# self.halt = self.aircraft_collection.find_one({'_id': })['halt']
+	
+				#[DEBUG] delay run speed of program to read print statements
+				#time.sleep(1)
+	
 		print 'Cleared\n'
 		
 def mainRun():

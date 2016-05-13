@@ -21,7 +21,7 @@ class TestAirplane(unittest.TestCase):
 		dz = 0
 		dtheta = 0
 		dphi = 0
-		ap = Airplane(pose, dx, dy, dz, dtheta, dphi)
+		ap = Airplane(pose, dx, dy, dz, dtheta, dphi, 'dummy')
 		sim = Simulator()
 		ap.addSimulator(sim)
 		
@@ -46,36 +46,36 @@ class TestAirplane(unittest.TestCase):
 	def testTooManyArgumentsConstructor(self):
 		with self.assertRaises(IllegalArgumentException):
 			pose = [0,0,0,0,0,0]
-			ap = Airplane(pose, 0, 0, 0, 0, 0)
+			ap = Airplane(pose, 0, 0, 0, 0, 0, "dummy")
 
 	def testTooFewArgumentsConstructor(self):
 		with self.assertRaises(IllegalArgumentException):
 			pose = [0,0]
-			ap = Airplane(pose, 0, 0, 0, 0, 0)
+			ap = Airplane(pose, 0, 0, 0, 0, 0, "dummy")
 
 	def testNonArrayPoseArgument(self):
 		with self.assertRaises(IllegalArgumentException):
 			pose = 'not an array'
-			ap = Airplane(pose, 0, 0, 0, 0, 0)
+			ap = Airplane(pose, 0, 0, 0, 0, 0, "dummy")
 
 	def testTooManyArgumentsSetPosition(self):
 		with self.assertRaises(IllegalArgumentException):
-			ap = Airplane([0,0,0,0,0], 5, 0, 0,0,0)
+			ap = Airplane([0,0,0,0,0], 5, 0, 0,0,0, "test")
 			ap.setPosition([0,0,0,0,0,0,0])
 
 	def testTooFewArgumentsSetPosition(self):
 		with self.assertRaises(IllegalArgumentException):
-			ap = Airplane([0,0,0,0,0], 5, 0, 0,0,0)
+			ap = Airplane([0,0,0,0,0], 5, 0, 0,0,0, "test")
 			ap.setPosition([0,0])
 
 	def testTooManyArgumentsSetVelocity(self):
 		with self.assertRaises(IllegalArgumentException):
-			ap = Airplane([0,0,0,0,0], 5, 0, 0, 0, 0)
+			ap = Airplane([0,0,0,0,0], 5, 0, 0, 0, 0, "test")
 			ap.setVelocity([0,0,0,0,0,0,0])
 
 	def testTooFewArgumentsSetVelocity(self):
 		with self.assertRaises(IllegalArgumentException):
-			ap = Airplane([0,0,0,0,0], 5, 0, 0, 0 ,0)
+			ap = Airplane([0,0,0,0,0], 5, 0, 0, 0 ,0, "test")
 			ap.setVelocity([0,0])
 
 	# Test get/set Position/Velocity at all legal position bounds
@@ -86,7 +86,7 @@ class TestAirplane(unittest.TestCase):
 		dz = 0
 		dtheta = 0
 		dphi = 0
-		ap = Airplane(pose, dx, dy, dz, dtheta, dphi)
+		ap = Airplane(pose, dx, dy, dz, dtheta, dphi, "test")
 		sim = Simulator()
 		ap.addSimulator(sim)		
 		
@@ -183,7 +183,7 @@ class TestAirplane(unittest.TestCase):
 		dz = 0
 		dtheta = 0
 		dphi = 0
-		ap = Airplane(pose, dx, dy, dz, dtheta, dphi)
+		ap = Airplane(pose, dx, dy, dz, dtheta, dphi, "test")
 		sim = Simulator()
 		ap.addSimulator(sim)
 
@@ -257,7 +257,7 @@ class TestAirplane(unittest.TestCase):
 		dz = 0
 		dtheta = 0
 		dphi = 0
-		ap = Airplane(pose, dx, dy, dz, dtheta, dphi)
+		ap = Airplane(pose, dx, dy, dz, dtheta, dphi, "test")
 		sim = Simulator()
 		ap.addSimulator(sim)
 
@@ -322,7 +322,7 @@ class TestAirplane(unittest.TestCase):
 		dtheta = 0
 		dphi = 0
 		sim = Simulator()
-		ap = Airplane(pose, dx, dy, dz, dtheta, dphi)
+		ap = Airplane(pose, dx, dy, dz, dtheta, dphi, "test")
 		ap.addSimulator(sim)
 
 		# Straight-line motion along x
@@ -400,7 +400,7 @@ class TestAirplane(unittest.TestCase):
 		dtheta = 0
 		dphi = 0
 		sim = Simulator()
-		ap = Airplane(pose, dx, dy, dz, dtheta, dphi)
+		ap = Airplane(pose, dx, dy, dz, dtheta, dphi, "test")
 		ap.addSimulator(sim)
 
 		# Straight-line motion along x

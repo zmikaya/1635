@@ -53,8 +53,8 @@ class TestSimulator(unittest.TestCase):
 	def testAddVehicle(self):
 		sim = Simulator()
 		pose = [0,0,0,0,0]
-		ap1 = Airplane(pose,1,0,1,0,1)
-		ap2 = Airplane(pose,0,1,1,1,0)
+		ap1 = Airplane(pose,1,0,1,0,1, "test")
+		ap2 = Airplane(pose,0,1,1,1,0, "test")
 		ap1.addSimulator(sim)
 		ap2.addSimulator(sim)
 		sim.addAirplane(ap1)
