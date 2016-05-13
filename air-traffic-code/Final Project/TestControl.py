@@ -13,29 +13,39 @@ class TestControl(unittest.TestCase):
 	# test illegal arguments
 	def testLowS(self):
 		with self.assertRaises(IllegalArgumentException):
-			c = Control(4,0)	
+			c = Control(4,0,0)	
 	
 	def testHighS(self):
 		with self.assertRaises(IllegalArgumentException):
-			c = Control(11,0)
+			c = Control(11,0,0)
 	
-	def testLowOmega(self):
+	def testLowOmegaX(self):
 		with self.assertRaises(IllegalArgumentException):
-			c = Control(5,-10)
+			c = Control(5,-10,0)
 
-	def testHighOmega(self):
+	def testHighOmegaX(self):
 		with self.assertRaises(IllegalArgumentException):
-			c = Control(5,10)
+			c = Control(5,10,0)
+	
+	def testLowOmegaZ(self):
+		with self.assertRaises(IllegalArgumentException):
+			c = Control(5,0,-10)
+
+	def testHighOmegaZ(self):
+		with self.assertRaises(IllegalArgumentException):
+			c = Control(5,0,10)
 
 	# test legal arguments
 	def testCorrectOutputs(self):
 		# values which should not throw errors
 		test_s = 7.5
-		test_omega = .2
-		test_c = Control(test_s,test_omega)
+		test_omegaX = .2
+		test_omegaZ = .1
+		test_c = Control(test_s,test_omegaX, test_omegaZ)
 		
 		self.assertEqual(test_s, test_c.getSpeed())
-		self.assertEqual(test_omega, test_c.getRotVel())
+		self.assertEqual(test_omegaX, test_c.getRotVelX())
+		self.assertEqual(test_omegaZ, test_c.getRotVelZ())
 
 
 # main method which executes unit tests when TestControl.py is run directly

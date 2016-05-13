@@ -26,6 +26,10 @@ class RandomController(PlaneController):
 		self.__avoidWallDist = 15
 
 	def getControl(self,sec,msec):
+		if type(sec) != float or type(sec) != int:
+			raise IllegalArgumentException("Wrong object type")
+        if type(msec) != float or type(msec) != int:
+            raise IllegalArgumentException("Wrong object type")
 		# avoid walls if we're too close
 		a = PlaneController.avoidWalls(self.__ap.getPosition())
 

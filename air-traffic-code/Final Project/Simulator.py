@@ -86,6 +86,8 @@ class Simulator(threading.Thread):
 		self.simulator_lock.release() # end critical region
 
 	def addAirplane(self, ap):
+                if type(ap) != type(Airplane([0,0,0,0,0],0,0,0,0,0))
+                        raise IllegalArgumentException("Wrong object type")
 		self.simulator_lock.acquire() # start critical region
 		self._apList.append(ap)
 		print "---------Adding Ground Plane-----------\n"

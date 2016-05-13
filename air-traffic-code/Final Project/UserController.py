@@ -1,7 +1,7 @@
 # RandomController.py
 # Assignment 3
 
-# Author: Alessandro Lira
+# Author: Zach Mikaya
 
 import math, threading, random
 
@@ -46,6 +46,10 @@ class UserController(PlaneController):
 		return -roll
 
 	def getControl(self,sec,msec):
+                if type(sec) != float or type(sec) != int
+                        raise IllegalArgumentException("Wrong object type")
+                if type(msec) != float or type(msec) != int
+                        raise IllegalArgumentException("Wrong object type")
 		throttle = self.getThrottle()
 		pitch = self.getPitch()
 		roll = self.getRoll()
