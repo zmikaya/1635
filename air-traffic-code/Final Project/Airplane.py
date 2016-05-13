@@ -335,7 +335,7 @@ class Airplane(threading.Thread):
 		currentSec = 0
 		currentMSec = 0
 
-		while (currentSec < self.__sim.duration) and not self.__sim.halt and not self.terminate:
+		while (currentSec < self.__sim.duration) and not self.terminate:
 			
 		# 	if not self.__sim.getDisplayClient().isConnected():
 		# 		break

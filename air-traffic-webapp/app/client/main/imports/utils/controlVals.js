@@ -9,8 +9,8 @@ let controlVals = {
   68: 'rollRight',
   87: 'pitchUp',
   83: 'pitchDown',
-  71: 'startSystem',
-  27: 'stopSystem'
+//   71: 'startSystem',
+//   27: 'stopSystem'
 };
 
 export default controlVals;

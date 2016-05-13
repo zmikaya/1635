@@ -105,7 +105,8 @@ aircraftControls._resetOrientation = function(template) {
 };
 
 aircraftControls.startSystem = function(template) {
-  this._resetOrientation(template);
+  // this._resetOrientation(template);
+  console.log('start');
   let playerID = template.playerID.get();
   Meteor.call('startSystem', playerID);
 };

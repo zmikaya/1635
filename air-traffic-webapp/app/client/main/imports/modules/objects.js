@@ -59,11 +59,11 @@ objects._makeFall = function(template, deltaT) {
 objects.controlDynamics = function(template, aircraft, deltaT) {
     let playerID = template.playerID.get();
     let halt = Aircraft.findOne({_id: playerID}).halt;
-    if (!halt) {
+    // if (!halt) {
         let aircraftPos = [aircraft.position.x, aircraft.position.y, aircraft.position.z];
         this._checkPositions(template, aircraftPos);
         this._makeFall(template, deltaT);
-    }
+    // }
 };
 
 objects.switchAircraft = function(template, scene, camera, aircraft) {
@@ -129,11 +129,6 @@ objects.createOtherAircraft = function() {
     		obj.name = objName;
     		if (objName == 'tie') {
     			obj.scale.set(6, 6, 6);
-    			let audio = document.createElement('audio');
-    			let source = document.createElement('source');
-    			source.src = './threejs/audio/tie-sound.mp3';
-    			audio.appendChild(source);
-    			audio.play();
     		}
     		obj.name = playerIDS[i];
     	    scene.add(obj);
